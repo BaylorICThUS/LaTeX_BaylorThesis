@@ -1,0 +1,94 @@
+%-------------------------------------------------------------------------------------------------------------------------------%
+%*******************************************************************************************************************************%
+%************************************************** Dissertation-Schultze.tex **************************************************%
+%*******************************************************************************************************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
+\documentclass{thesis}
+%-------------------------------------------------------------------------------------------------------------------------------%
+\usepackage{epsfig}                 %% Permit the use of postscript figures within the document.
+%\patchcmd{\Ginclude@eps}{"#1"}{#1}{}{}
+\include{Dissertation-Prologue}
+\graphicspath{{./images/}}
+%-------------------------------------------------------------------------------------------------------------------------------%
+\title{Title of Your Dissertation}                                      %\thesisTitle
+
+\author{John G. Student}                                                %\thesisAuthor
+\holding{B.S., M.S.}                                                    %\thesisHolding
+\seeking{Ph.D.}                                                         %\thesisSeeking
+\degree{Doctor of Philosophy}                                           %\thesisDegree
+
+\department{Department of Electrical and Computer Engineering}          %\thesisDepartment
+\departmentChair{Kwang Y. Lee, Ph.D.}                                   %\thesisDepartmentChair
+%\schoolChair{Kwang Y. Lee, Ph.D.}
+\graduateDean{J. Larry Lyon, Ph.D.}                                     %\thesisDean
+\supervisor{Chairperson Name, Ph.D.}                                    %\thesisMentor
+\supervisorTitle{Mentor}                                                %\thesisMentorTitle
+\readerOne{Reader One, Ph.D.}                                           %\thesisReaderOne
+\readerTwo{Reader Two,  Ph.D.}                                          %\thesisReaderTwo
+\readerThree{Reader Three, Ph.D.}                                       %\thesisReaderThree
+\date{Grad-Month Grad-Year}                                                      %\thesisConfDate
+
+%% You may have to change these but probably not.
+
+\insertSignaturePage{./SignaturesPage.pdf}
+%\makeCopyrightPage
+\makeListOfFigures                                                      % sets \@makeLoFtrue -> adds \thesisLoFpage to \thesisPrologue
+\makeListOfTables                                                       % sets \@makeLoTtrue -> adds \thesisLoTpage to \thesisPrologue
+
+% Tell latex that there is no list of tables
+%\emptyLoT
+
+%-------------------------------------------------------------------------------------------------------------------------------%
+%*******************************************************************************************************************************%
+%****************************************************** MAIN DOCUMENT BODY *****************************************************%
+%*******************************************************************************************************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
+\begin{document}
+	
+\include{C1-Intro}
+
+\include{C2-HistoricalReview}
+	
+%------------------------------------------------------------------------------------------------------------------------------%
+\include{C3-Methods}
+
+\subappendix{explicit subappendix title (capitalized)}{%
+    \label{chap3:app}
+    \input{C3-Appendix}
+}
+%------------------------------------------------------------------------------------------------------------------------------%
+\include{C4-Results}
+
+% Empty "title" parameter -> default title inserted
+\subappendix{}{%
+    \label{chap4:app}
+    \input{C4-Appendix}
+}
+%------------------------------------------------------------------------------------------------------------------------------%
+\include{C5-Summary}
+
+%------------------------------------------------------------------------------------------------------------------------------%
+\include{C6-Conclusion}
+
+%-------------------------------------------------------------------------------------------------------------------------------%
+%*******************************************************************************************************************************%
+%****************************************************** BACKMATTER CONTENT *****************************************************%
+%*******************************************************************************************************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
+%\appendix                                                                      % Back matter Appendix option (not formatted/tested yet)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Prevent page breaks mid-citation. There are other ways to do this, e.g. modify .bst file, bib environment, etc. This is easiest
+% & works for citations of any # of lines, which Grad School requested in technical review.
+\interlinepenalty=10000
+%-------------------------------------------------------------------------------------------------------------------------------%
+%\bibliographystyle{chicago}                                                    % Chicago bib style      
+\bibliographystyle{IEEEtran}                                                    % IEEE Transactions on ... bib style
+\bibliography{authors,journal-names,IEEEfull,dissertation}                      % Full IEEE/other journal names
+%\bibliography{authors,journal-abrvs,IEEEabrv,pct}                              % Abbreviated IEEE/other journal names
+%-------------------------------------------------------------------------------------------------------------------------------%
+\end{document}
+%-------------------------------------------------------------------------------------------------------------------------------%
+%*******************************************************************************************************************************%
+%************************************************ END: Dissertation-Schultze.tex ***********************************************%
+%*******************************************************************************************************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
