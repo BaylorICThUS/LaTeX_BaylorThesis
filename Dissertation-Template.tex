@@ -75,11 +75,14 @@
 %****************************************************** BACKMATTER CONTENT *****************************************************%
 %*******************************************************************************************************************************%
 %-------------------------------------------------------------------------------------------------------------------------------%
-%\appendix                                                                      % Back matter Appendix option (not formatted/tested yet)
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Prevent page breaks mid-citation. There are other ways to do this, e.g. modify .bst file, bib environment, etc. This is easiest
-% & works for citations of any # of lines, which Grad School requested in technical review.
-\interlinepenalty=10000
+\begin{appendices}
+    %\the\value{numAppendices}\\
+    \chapter{Some Appendix}\label{app:a}
+    \input{Appendix-A}
+    \chapter{Some Additional Appendix}\label{app:b}
+    \input{Appendix-B}
+\end{appendices}
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\bibliographystyle{chicago}                                                    % Chicago bib style      
 \bibliographystyle{IEEEtran}                                                    % IEEE Transactions on ... bib style
