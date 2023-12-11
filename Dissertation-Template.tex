@@ -18,26 +18,28 @@
 \degree{Doctor of Philosophy}                                           %\thesisDegree
 
 \department{Department of Electrical and Computer Engineering}          %\thesisDepartment
-\departmentChair{Kwang Y. Lee, Ph.D.}                                   %\thesisDepartmentChair
+\departmentChair{Your D. Chair, Ph.D.}                                   %\thesisDepartmentChair
 %\schoolChair{Kwang Y. Lee, Ph.D.}
-\graduateDean{J. Larry Lyon, Ph.D.}                                     %\thesisDean
+\graduateDean{Your D. Dean, Ph.D.}                                     %\thesisDean
 \supervisor{Chairperson Name, Ph.D.}                                    %\thesisMentor
 \supervisorTitle{Mentor}                                                %\thesisMentorTitle
 \readerOne{Reader One, Ph.D.}                                           %\thesisReaderOne
 \readerTwo{Reader Two,  Ph.D.}                                          %\thesisReaderTwo
 \readerThree{Reader Three, Ph.D.}                                       %\thesisReaderThree
-\date{Grad-Month Grad-Year}                                                      %\thesisConfDate
+\date{Grad-Month Grad-Year}                                             %\thesisConfDate
 
-%% You may have to change these but probably not.
+% If you acquired signatures on a separate PDF, uncomment this line and change the PDF title as needed
+%\insertSignaturePage{./SignaturesPage.pdf}
 
-\insertSignaturePage{./SignaturesPage.pdf}
-%\makeCopyrightPage
-\makeListOfFigures                                                      % sets \@makeLoFtrue -> adds \thesisLoFpage to \thesisPrologue
-\makeListOfTables                                                       % sets \@makeLoTtrue -> adds \thesisLoTpage to \thesisPrologue
+\makeListOfFigures                                                      % sets \@makeLoFtrue-> adds \thesisLoFpage to \thesisPrologue
+\makeListOfTables                                                       % sets \@makeLoTtrue-> adds \thesisLoTpage to \thesisPrologue
 
-% Tell latex that there is no list of tables
-%\emptyLoT
 
+%\emptyLoT                                                              % Tell latex that there is no list of tables
+%\excludeAbstractPage
+%\excludeAcknowlegmentsPage
+%\excludeDedicationPage
+%\excludeAttributionsPage
 %-------------------------------------------------------------------------------------------------------------------------------%
 %*******************************************************************************************************************************%
 %****************************************************** MAIN DOCUMENT BODY *****************************************************%
@@ -46,9 +48,23 @@
 \begin{document}
 	
 \include{C1-Intro}
-
+	\begin{figure}
+	  \centering
+	  \includegraphics[width=4cm]{Space_Carving_1.png}
+	  \caption{Hello DDA figure caption }\label{fig:DDA}
+	\end{figure}
+	\begin{figure}
+	  \centering
+	  \includegraphics[width=4cm]{Space_Carving_2.png}
+	  \caption{Hello DDA figure caption}\label{fig:DDA}
+	\end{figure}
+7
 \include{C2-HistoricalReview}
-	
+	\begin{figure}
+	  \centering
+	  \includegraphics[width=4cm]{DDA.png}
+	  \caption{Hello DDA figure caption}\label{fig:DDA}
+	\end{figure}
 %------------------------------------------------------------------------------------------------------------------------------%
 \include{C3-Methods}
 
@@ -84,7 +100,7 @@
     \input{Appendix-B}
 \end{appendices}
 %-------------------------------------------------------------------------------------------------------------------------------%
-%\bibliographystyle{chicago}                                                    % Chicago bib style      
+%\bibliographystyle{chicago}                                                    % Chicago bib style
 \bibliographystyle{IEEEtran}                                                    % IEEE Transactions on ... bib style
 \bibliography{authors,journal-names,IEEEfull,dissertation}                      % Full IEEE/other journal names
 %\bibliography{authors,journal-abrvs,IEEEabrv,pct}                              % Abbreviated IEEE/other journal names
