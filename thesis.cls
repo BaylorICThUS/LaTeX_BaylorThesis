@@ -836,7 +836,7 @@
     \if@makeAcknowledgements
         \thispagestyle{plain}
         %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
-        \addtocontents{toc}{\protect\vspace{-2\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\acknowledgeToCtitle}
 		\begin{center}\vspace*{0.3in}\normalfont\normalsize\acknowledgeHeading\end{center}
@@ -853,7 +853,7 @@
 	\if@makeDedication		
 		\thispagestyle{plain}
 		%\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
-        \addtocontents{toc}{\protect\vspace{-2\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection  % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\dedicationToCtitle}
 		\begin{center}\vspace*{0.25in}\normalfont\normalsize\dedicationHeading{}\end{center} % SHOWS the dedication title on the page
@@ -871,7 +871,7 @@
 	\if@makeAttributions
 		\thispagestyle{plain}
         %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
-        \addtocontents{toc}{\protect\vspace{-2\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\attributionToCtitle}
 		\begingroup
@@ -883,6 +883,7 @@
         \th@attributionsStash
 		\clearpage
 	\fi
+    \addtocontents{toc}{\protect\vspace{\baselineskip}}                         % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
 }
 %===============================================================================================================================%
 % Table of Contents (ToC) page construction
@@ -979,7 +980,7 @@
 	\if@makeLoF
         \renewcommand*{\addvspace}[1]{}                                         % Blake, 2023: Removes extra space separating LoF entries from different chapters
         %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021: ADDS 0.25" space before LoF entry in ToC
-        \addtocontents{toc}{\protect\vspace{-2\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\cftLoFtitle}
 		\renewcommand*{\listfigurename}{\vspace*{-0.27in}\centering\normalsize\normalfont\LoFHeading\vspace{-0.25in}}
@@ -1003,7 +1004,7 @@
 	\if@makeLoT
 		\renewcommand*{\addvspace}[1]{}                                         % Blake, 2023: Removes extra space separating LoF entries from different chapters
         %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021: ADDS 0.25" space before LoF entry in ToC
-        \addtocontents{toc}{\protect\vspace{-2\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\cftLoTtitle}
 		\renewcommand*{\listtablename}{\vspace*{-0.27in}\centering\normalsize\normalfont\LoTHeading\vspace{-0.25in}}
