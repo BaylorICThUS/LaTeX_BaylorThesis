@@ -5,9 +5,10 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 \documentclass{thesis}
 %-------------------------------------------------------------------------------------------------------------------------------%
-\usepackage{epsfig}                 %% Permit the use of postscript figures within the document.
+\usepackage{epsfig}                                                     % Permit the use of postscript figures within the document.
 %\patchcmd{\Ginclude@eps}{"#1"}{#1}{}{}
-\include{Dissertation-Prologue}
+\include{Dissertation-Prologue}                                         % Abstract, Acknowledgements, Attributions, Dedication definitions
+%\include{Dissertation-Preamble}                                        % Include your own TeX definitions from Dissertation-Preamble.tex
 \graphicspath{{./images/}}
 %-------------------------------------------------------------------------------------------------------------------------------%
 \title{Title of Your Dissertation}                                      %\thesisTitle
@@ -18,9 +19,8 @@
 \degree{Doctor of Philosophy}                                           %\thesisDegree
 
 \department{Department of Electrical and Computer Engineering}          %\thesisDepartment
-\departmentChair{Your D. Chair, Ph.D.}                                   %\thesisDepartmentChair
-%\schoolChair{Kwang Y. Lee, Ph.D.}
-\graduateDean{Your D. Dean, Ph.D.}                                     %\thesisDean
+\departmentChair{Your D. Chair, Ph.D.}                                  %\thesisDepartmentChair
+\graduateDean{Your D. Dean, Ph.D.}                                      %\thesisDean
 \supervisor{Chairperson Name, Ph.D.}                                    %\thesisMentor
 \supervisorTitle{Mentor}                                                %\thesisMentorTitle
 \readerOne{Reader One, Ph.D.}                                           %\thesisReaderOne

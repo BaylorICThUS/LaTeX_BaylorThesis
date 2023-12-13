@@ -1,3 +1,6 @@
+## Specific files:
+thesis_*.cls
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof

@@ -6,8 +6,11 @@
 % Baylor University Thesis/Dissertation LaTeX Template
 %
 % Last Updated in December, 2023
+%===============================================================================================================================%
+%-------------------------------------------------------- Contributors ---------------------------------------------------------%
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Contributors
+% 'BaylorCS/baylor-cs-thesis' contributors
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Some code derived from an early template
 % created by Jeff Donahoo (2000), with additional
@@ -15,15 +18,24 @@
 % rewritten and simplified by Jonathan Drake (2013).
 % additional stuff by Alvin Jude (2014)
 %-------------------------------------------------------------------------------------------------------------------------------%
-% cloned 'BaylorCS/baylor-cs-thesis' repo and ammended by Blake Schultze (2021)
-% updated by Blake Schultze (2023)
+% 'BaylorICTHUS/LaTeX_BaylorThesis' contributors
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake Schultze (2021): cloned 'BaylorCS/baylor-cs-thesis' repo and ammended
+% Blake Schultze (2023): updated to conform to 9/30/2022 version of 'Dissertation and Thesis Guidelines'
+% Blake Schultze (2023): updates made on behalf of ECS graduate Ha Nguyen
 %===============================================================================================================================%
 %---------------------------------------------------------- Changelog ----------------------------------------------------------%
 %===============================================================================================================================%
+% NOTE: The Changelog records ALL previous changes and new changes should ONLY be appended to it. However, some of the comments
+% in the main body of this .cls file associated with previous changes have been (and should be) removed or replaced when they
+% are no longer applicable/accurate, particularly comments referring to TeX that has since been changed and, thus, are
+% potentially confusing and/or superfluous
+%-------------------------------------------------------------------------------------------------------------------------------%
+% changes to the TeX render previous comments
 % Added \comment{} - simplifies multiline comments
 % Fixed spaces after floats: images & tables
 % -- NOTE:
-%    This only works when floats are at to of page. There is no guarantee that inline images and tables
+%    This only works when floats are at top of page. There is no guarantee that inline images and tables
 %    Will actually work. If anybody needs this, will need to be fixed
 % final version changelog:
 % Dedication: Moved to 3 inches from the top, removed title ("DEDICATION") from the top of the page
@@ -56,7 +68,7 @@
 % + Modified 'subappendices' environment to match Chapter level appendices with format guidelines
 %   - Available if necessary, but highly discouraged by Baylor. If used, be prepared to defend use and possibly compromise on formatting.
 % + Replaced 'center' environments with \begingroup\centering...\endgroup when 'center' prevented exact heading position w/ \vspace* (e.g. Abstract)
-% + Added storage of \chapter & \Section titles (\curr<Chap,Sec>Titles for later access to this text
+% + Added storage of \chapter & \section titles (\curr<Chap,Sec>Titles for later access to this text
 % + Added a number of package requirements and various useful control sequence and math operator definitions.
 % + Modified the \Xname defs to normal capitalization and created \XToCtitle & \Xheading that \MakeUppercase the \Xname's, where X=abstract/appendix/etc.
 %   - Not strictly necessary, but provides flexibility for future changes and improves logic/readability
@@ -64,10 +76,16 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2023
 %-------------------------------------------------------------------------------------------------------------------------------%
-%
-%
-%
-%
+% + Modified ToC page format (entry spacing, labels + numbering):
+%       - Modified chapter ToC entries to span 2 lines
+%       - 1st line: Added "CHAPTER" before each chapter # and changed the arabic numbering to the English words for each arabic numeral
+%       - 2nd line: lists the chapter title  indented wrt 1st line, with
+% + Modified LoF and LoT pages:
+%       - Prepended the word "Figure " and "Table " to the LoF and LoT entry numberline (snum), respectively.
+%       - Reduced gap between Figure/Table # and subsequent [<short caption>] or {<full caption>} to a single space character
+%       - Removed extra space separating groups of Figures/Tables from different chapters
+% + Modified Appendix/Appendices to have the same heading and ToC title behavior as the updated CHAPTER formatting
+% + Reorganized & improved partitioning of this file, added/updated comments, & began cleaning up the TeX code
 %===============================================================================================================================%
 % TODO:
 %===============================================================================================================================%
@@ -84,18 +102,26 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2023
 %-------------------------------------------------------------------------------------------------------------------------------%
-% NOTES: (1) there is far too much repeated code, which would be much easier to manage if encapsulated in macros. This would also make
-% the code much shorter and more readable. The priority in 2021/2023 was making it work, but this needs to be cleaned up ASAP
-% (2) the hard coded lengths in the many V/H spacing commands should be parameterized, wherever reasonable, so such spacing can be
-% managed from individual length parameters rather changing them everywhere by hand each time a spacing change needs to be made
-% (3) Adding parameter list descriptions for important macros, particularly Report class derived sectioning commands, would be
-% an invaluable asset for managing this .cls file. When macro parameters are decoded, this knowledge expires long before the next
-% maintenance. As an example: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}*[<altheading>]{<heading>}
-%
+% + explore replacing various ToC/Prologue "hacks" with \cftX etc. commands that were previously ineffectual due to conflicts between
+%   the 'fancyhdr' package; 'fancyhdr' was updated in 2022 and it appears that AT LEAST SOME of the previous conflicts with 'tocloft'
+%   no longer exist. Too early to say, and the documentation doesn't mention, if this now holds true for ALL 'tocloft' macros, but
+%   maintaining the .cls file would be far easier if ToC formatting changes for new Grad Guidelines were easier and more intuitive
+% + parameterize the many hard-coded lengths in V/H spacing commands, wherever reasonable, so such spacing can be controlled from
+%   external length parameters rather changing them everywhere by hand each time a spacing change needs to be made
+% + create a 'Dissertation-config.tex' file with simple external macros that redefine the corresponding internal macros which
+%   defines the value of some pertinent parameter e.g. spacing/indentation, text/names, true/false , etc. This would allow for
+%   much simpler changes by users of the .cls and, ideally, reduce the amount of maintenance required to update the .cls to new
+%   grad guidelines.
+% + add parameter list descriptions for important macros, particularly 'Report' class derived sectioning commands, would drastically
+%   ease maintenance. Decoding macro parameters is time consuming and easily forgotten before the next maintenance. As an example:
+%      - \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}*[<altheading>]{<heading>}
+% + there is far too much repeated code, which would be much easier to manage if encapsulated in macros. This would also make
+%   the code much shorter and more readable. The priority in 2021/2023 was making it work, but this needs to be cleaned up ASAP
+% + fix 'sunappendices' so that the word "APPENDIX" doesn't appear prepended to the title of each of its \<sub>section in the ToC
 %-------------------------------------------------------------------------------------------------------------------------------%
 %===============================================================================================================================%
 \ProvidesClass{thesis}[2014/06/01]
-
+%-------------------------------------------------------------------------------------------------------------------------------%
 \newif\if@makeDraftThesis                                                       % draft:	draft heading, no graphics loaded, etc.
 \newif\if@makeShortThesis                                                       % short:	front matter omitted
 \newif\if@isDissertation
@@ -103,6 +129,7 @@
 \@makeShortThesisfalse
 \@isDissertationtrue                                                            % Yes, this is dissertation
 %\@isDissertationfalse                                                          % No, this is a thesis/other
+%-------------------------------------------------------------------------------------------------------------------------------%
 \DeclareOption{draft}{\@makeDraftThesistrue}
 \DeclareOption{short}{\@makeShortThesistrue}
 \DeclareOption{dissertation}{\@isDissertationtrue}
@@ -181,16 +208,16 @@
 %===============================================================================================================================
 \RequirePackage[titletoc]{appendix}                                             % Fix the ToC style for appendices
 \RequirePackage{graphicx}                                                       %\RequirePackage[pdftex]{graphicx}
-\RequirePackage{amsmath}
+\RequirePackage{amsmath}                                                        % Provides primary symbols, fonts, and environments for mathematical mode TeX
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2021: Switched to IEEEtran bibstyle for IEEE style guide. Retaining "chicago" package requirement
 % yields parenthetical, rather than bracketed, citation numbers, so package is eliminated.
 %\RequirePackage{chicago}
 %-------------------------------------------------------------------------------------------------------------------------------%
 % ALVIN: Needs this
-\RequirePackage{multirow}
-\RequirePackage{hhline}
-\RequirePackage{url}
+\RequirePackage{multirow}                                                       % Provides tools for creating tabular cells spanning multiple rows
+\RequirePackage{hhline}                                                         % Better tabular/array horizontal lines and vertical line interaction
+\RequirePackage{url}                                                            % Provides \url to create web links
 \RequirePackage{newclude}                                                       % for newclude bibtex
 \RequirePackage{breakcites}                                                     % ensures multiple citations may break at line end
 \RequirePackage[titles]{tocloft}                                                % ToC/LoF/LoT formatting controls
@@ -201,33 +228,34 @@
 \clubpenalty=\@M                                                                % Eliminates orphan lines
 \widowpenalty=\@M                                                               % Eliminates widowed lines
 %===============================================================================================================================%
-%---------------------------------- Frontmatter/backmatter: component names, titles, headings ----------------------------------%
+%----------------------------- Frontmatter/backmatter & chapter: component names, titles, headings -----------------------------%
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Blake: Added Dec 2023
-% Conditionals for controlling whether the front/back matter names () are passed directly titles of (1) page/chapter
-% headings and (2) their corresponding ToC entries are printed directly from their
-% names (\X..Xname} or with \MakeUppercase (true) to (1) their ToC entry title
-% and (2) to their page heading title
+% Blake, 2021: Modified \X..Xname names to Capitalized and added \X..Xheading and \X..XToCtitle commands for independently
+% controlling the appearance of Prologue/Chapter page headings and their corresponding ToC entry titles
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Front/back matter "page heading" control
+% Blake, 2023: Added conditionals for controlling whether the frontmatter/backmatter (1) headings and (2) ToC titles are
+% printed directly from their name definitions (\X..Xname) or first passed through \MakeUppercase so the names are printed
+% entirely "UPPERCASE". Headings and ToC titles are made distinct, adding flexibility to control these independently (if needed)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Frontmatter/backmatter and \chapter "page heading" control
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newif\if@UppercaseHeadings                                                     % Uppercase page heading names?
-\@UppercaseHeadingstrue
-%\@UppercaseHeadingsfalse
+\@UppercaseHeadingstrue                                                         % Set uppercase headings true
+%\@UppercaseHeadingsfalse                                                       % Set uppercase headings false
 \if@UppercaseHeadings
-    \global\let\ToCheadingFontStyle\MakeUppercase
+    \global\let\headingFontStyle\MakeUppercase
 \else
-    \global\let\ToCheadingFontStyle\relax
+    \global\let\headingFontStyle\relax
 \fi
 \newcommand\setUppercaseHeadings{\@UppercaseHeadingstrue}
 \newcommand\setCapitalizedHeadings{\@UppercaseHeadingsfalse}
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Front/back matter "ToC entry label" control
+% Frontmatter/backmatter and \chapter "ToC entry label" control
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newif\if@UppercaseToCtitles                                                    % Uppercase ToC entry names?
-\@UppercaseToCtitlestrue
-%\@UppercaseToCtitlesfalse
+\@UppercaseToCtitlestrue                                                        % Set uppercase ToC title true
+%\@UppercaseToCtitlesfalse                                                      % Set uppercase ToC title false
 \if@UppercaseToCtitles
     \global\let\ToCtitleFontStyle\MakeUppercase
 \else
@@ -236,7 +264,7 @@
 \newcommand\setUppercaseToCtitles{\@UppercaseToCtitlestrue}
 \newcommand\setCapitalizedToCtitles{\@UppercaseToCtitlesfalse}
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Set the names of front/back matter "pages" & "\chapter"s
+% Set the (capitalized) names of frontmatter/backmatter and \chapter components
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\renewcommand*{\abstractname}{Abstract}
 \newcommand*{\ToCname}{Table of Contents}
@@ -250,22 +278,21 @@
 \newcommand*{\bibliographyname}{Bibliography}
 \renewcommand*{\chaptername}{Chapter}
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Set the (capitalized) headings of front/back matter "pages" & "\chapter"s
+% Set the headings of frontmatter/backmatter and \chapter "pages"
 %-------------------------------------------------------------------------------------------------------------------------------%
-\newcommand*{\abstractHeading}{\ToCheadingFontStyle{\abstractname}}
-\newcommand*{\ToCHeading}{\ToCheadingFontStyle{\ToCname}}
-\newcommand*{\LoFHeading}{\ToCheadingFontStyle{\LoFname}}
-\newcommand*{\LoTHeading}{\ToCheadingFontStyle{\LoTname}}
-\newcommand*{\acknowledgeHeading}{\ToCheadingFontStyle{\acknowledgename}}
-\newcommand*{\dedicationHeading}{\ToCheadingFontStyle{\dedicationname}}
-\newcommand*{\attributionHeading}{\ToCheadingFontStyle{\attributionname}}
-\newcommand*{\appendixHeading}{\ToCheadingFontStyle{\appendicesname}}
-\newcommand*{\appendicesHeading}{\ToCheadingFontStyle{\appendicespluralname}}   % Plural when more than one appendix chapter
-\newcommand*{\bibliographyHeading}{\ToCheadingFontStyle{\bibliographyname}}
-\newcommand*{\chapterHeading}{\ToCheadingFontStyle{\chaptername}}
+\newcommand*{\abstractHeading}{\headingFontStyle{\abstractname}}
+\newcommand*{\ToCHeading}{\headingFontStyle{\ToCname}}
+\newcommand*{\LoFHeading}{\headingFontStyle{\LoFname}}
+\newcommand*{\LoTHeading}{\headingFontStyle{\LoTname}}
+\newcommand*{\acknowledgeHeading}{\headingFontStyle{\acknowledgename}}
+\newcommand*{\dedicationHeading}{\headingFontStyle{\dedicationname}}
+\newcommand*{\attributionHeading}{\headingFontStyle{\attributionname}}
+\newcommand*{\appendixHeading}{\headingFontStyle{\appendicesname}}
+\newcommand*{\appendicesHeading}{\headingFontStyle{\appendicespluralname}}      % Plural when more than one appendix chapter
+\newcommand*{\bibliographyHeading}{\headingFontStyle{\bibliographyname}}
+\newcommand*{\chapterHeading}{\headingFontStyle{\chaptername}}
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Set the (capitalized) ToC titles of front/back matter "pages" & "\chapter"s
-% included just in case they ever need to be made distinct from one another
+% Set the ToC entry titles of frontmatter/backmatter and \chapter "pages"
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand*{\abstractToCtitle}{\ToCtitleFontStyle{\abstractname}}
 \newcommand*{\cftToCtitle}{\ToCtitleFontStyle{\ToCname}}
@@ -279,7 +306,7 @@
 \newcommand*{\bibliographyToCtitle}{\ToCtitleFontStyle{\bibliographyname}}
 \newcommand*{\chapterToCtitle}{\ToCtitleFontStyle{\chaptername}}
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Convert to form expected by other packages
+% Define these w/ font style commands included as expected by other packages
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand*{\appendixname}{\normalsize\normalfont\appendixHeading}
 \renewcommand*{\bibname}{\normalsize\normalfont\bibliographyHeading}
@@ -303,7 +330,7 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\ArabicText}[1]%
 {% number to Capitalized number name
-    %\                                                                          % Blake, 2023: removed "Force a space"
+    %\space                                                                          % Blake, 2023: removed "Force a space"
     \ifnum0<0#1                                                                 % Test for chapter number vs appendix letter
 		\ifcase#1
 			Zero \or One \or Two \or Three \or Four \or
@@ -376,7 +403,7 @@
         %\ifnum \c@section >
         \ifnum \value{section} <\@ne
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-            \addcontentsline{toc}{chapter}{\protect\rm\chapterToCtitle\ \ARABICText{\thechapter}\vspace{-0.5\baselineskip-6pt}}%
+            \addcontentsline{toc}{chapter}{\protect\rm\chapterToCtitle\space\ARABICText{\thechapter}\vspace{-0.5\baselineskip-6pt}}%
         %\else
         \fi
         %
@@ -389,8 +416,8 @@
 	\chaptermark{#1}%
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
 	% I expect if they notice this additional LoF/LoT spacing between entries from different chapters, they will request it be removed.
-    \addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
-    \addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
+    %\addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
+    %\addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
 	\begingroup
 		\centering
 		\vspace*{0.43in}
@@ -408,6 +435,7 @@
 %===============================================================================================================================%
 \def\@sect#1#2#3#4#5#6[#7]#8%
 {% Section heading
+    %\vspace{\baselineskip}
     \ifnum #2>\c@secnumdepth
         \let\@svsec\@empty
     \else
@@ -451,9 +479,9 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\section}[2][]
 {% Section command
-	\ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
+    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
     %NOTE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}*[<altheading>]{<heading>}
-	\@startsection{section}{1}{0pt}{1em}{0.001ex}%skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virually none
+	\@startsection{section}{2}{0pt}{1em}{0.001ex}%skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virtually none
 	{\centering\normalfont\slshape\normalsize}[\ToCentry]{#2}
 }
 %===============================================================================================================================%
@@ -466,6 +494,7 @@
 %   THEN distance between Level 3 and Level 4 = triplespace.
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2021: Reverted the \subsection command to 2 parameters, where optional [#1] provides a "short title" optiono for its ToC entry
+%-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\subsection}[2][]
 {% Subsection command
     \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
@@ -474,23 +503,18 @@
 	{\vspace{1em}\normalfont\slshape\normalsize}[\hspace{-0.5in}\ToCentry]{#2}
 }
 %===============================================================================================================================%
-%------------------------------------------------ Subsection command & headings ------------------------------------------------%
+%------------------------------------------------ Subsubsection command & headings ------------------------------------------------%
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2021: Changed "Level 5" heading from \parindent to 0\p@ as requested by Grad School
-% Blake, 2021: Reverted the \subsubsection command to 2 parameters, where optional [#1] provides a "short title" optiono for its ToC entry
-%\renewcommand{\subsubsection}[1]
-%{%
-%    \vspace{1em}
-%	\@startsection{subsubsection}{3}{0\p@}{0.001em}{-1em}%
-%	{\normalfont\slshape\normalsize}{#1\hspace{-3ex}}{.} %adds a period/fullstop/dot after the title
-%}
+% Blake, 2021: Reverted the \subsubsection command to 2 parameters, where optional [#1] provides a "short title" option for its ToC entry
+%-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\subsubsection}[2][]
 {% Subsubsection command
     \vspace{1em}
 	\ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
 	\@startsection{subsubsection}{3}{0\p@}{0.001em}{-1em}%
-	{\normalfont\slshape\normalsize}[\ToCentry]{#2\hspace{-3ex}}{.} %adds a period/fullstop/dot after the title
+    {\normalfont\slshape\normalsize}[\ToCentry]{#2\hspace{-3ex}}{.}             % adds a period/fullstop/dot after the title
 }
 %===============================================================================================================================%
 %--------------------------------------- List Control: Itemize/Enumerate list commands -----------------------------------------%
@@ -531,10 +555,7 @@
 %*******************************************************************************************************************************%
 % Internal boolean variables
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Blake, 2021: These are unnecessary and can be removed.
-% If kept, should use \gdef or \newcommand & \renewcommand here and the filling of stash, not mixed \gdef & \newcommand.
-%\newcommand{\th@dedicationStash}{\relax}
-%\newcommand{\th@acknowledgementsStash}{\relax}
+% Blake, 2023:
 %-------------------------------------------------------------------------------------------------------------------------------%
 \gdef\th@dedicationStash{\relax}
 \gdef\th@acknowledgementsStash{\relax}
@@ -592,10 +613,6 @@
 	\thesisAcknowledgementpage
 	\thesisDedicationpage
     \thesisAttributionspage                                                     % Blake added, 2021
-    % Blake, 2023: Hack to get "single spacing" before 1st Chapter ToC entry
-    % Same hack used on each of the preceding pages
-    \addtocontents{toc}{\protect\vspace{-\baselineskip}}
-		
 }
 %===============================================================================================================================%
 % Abstract page contruction (attempts to match BUGS 2013 guidelines)
@@ -822,7 +839,7 @@
         \thispagestyle{empty}
 		\vspace*{\Copyright@topskip}
 		\begin{center}
-            Copyright \copyright{} \the\year\ by  \thesisAuthorName\\
+            Copyright \copyright{} \the\year\space by  \thesisAuthorName\\
             All rights reserved
 		\end{center}
 		\clearpage
@@ -835,6 +852,7 @@
 {
     \if@makeAcknowledgements
         \thispagestyle{plain}
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
         %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
         \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
@@ -852,6 +870,7 @@
 {
 	\if@makeDedication		
 		\thispagestyle{plain}
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
 		%\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
         \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection  % Anchor the bookmark to this position
@@ -870,6 +889,7 @@
 {
 	\if@makeAttributions
 		\thispagestyle{plain}
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
         %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
         \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
@@ -883,7 +903,6 @@
         \th@attributionsStash
 		\clearpage
 	\fi
-    \addtocontents{toc}{\protect\vspace{\baselineskip}}                         % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
 }
 %===============================================================================================================================%
 % Table of Contents (ToC) page construction
@@ -892,6 +911,8 @@
 % NOTE: overflowing chapter titles MUST be single-spaced
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand\cftparskip{0.5\baselineskip}                                      % Vertical skip between headings
+%\renewcommand\@tocrmarg{2.75em}                                                % ToC global right margin
+%\renewcommand\@pnumwidth{1.85em}                                               % ToC global page numberline box width
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand\cftpartleader{\normalfont\cftdotfill{\cftchapdotsep}}             % then remove the bolds.
 \renewcommand\cftchapleader{\normalfont\cftdotfill{\cftchapdotsep}}             % then remove the bolds.
@@ -916,14 +937,14 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2023: Added "Figure " before figure #s in the LoF, then adjusted numberline spacing/location
 %-------------------------------------------------------------------------------------------------------------------------------%
-\renewcommand\cftfigpresnum{\figurename\ }                                      % Add "Figure " before figure #s in LoF entries
+\renewcommand\cftfigpresnum{\figurename\space}                                      % Add "Figure " before figure #s in LoF entries
 \newlength\len@cftfigpresnum                                                    % Width of content preceding 'snum', i.e. \cftfigpresnum
 \settowidth\len@cftfigpresnum{\cftfigfont\cftfigpresnum}                        % Set to the width of \cftfigpresnum
 %\addtolength\len@cftfigpresnum{\cftfignumwidth}
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2023: Added "Table " before table #s in the LoT, then adjusted numberline spacing/location
 %-------------------------------------------------------------------------------------------------------------------------------%
-\renewcommand\cfttabpresnum{\tablename\ }                                       % Add "Table " before table #s in LoT entries
+\renewcommand\cfttabpresnum{\tablename\space}                                       % Add "Table " before table #s in LoT entries
 \newlength\len@cfttabpresnum                                                    % Width of content preceding 'snum', i.e. \cfttabpresnum
 \settowidth\len@cfttabpresnum{\cfttabfont\cfttabpresnum}                        % Set to the width of \cfttabpresnum
 %\addtolength\len@cfttabpresnum{\cfttabnumwidth}
@@ -970,7 +991,8 @@
 %\renewcommand{\cftafterloftitle}{}
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\setlength{\cftfignumwidth}{2.85em}                                            % Blake added, 2021: Provide space for X.X.XX LoF numbering
-%\setlength{\cftfignumwidth}{\len@cftfigpresnum+0.25in}                         % Blake, 2023: Removed in favor of \setindents
+%\setlength{\cftfignumwidth}{\len@cftfigpresnum+0.25in}                         % Blake, 2023: Removed in favor of \setindents{figure}
+%\renewcommand{\cftfigleader}{\normalfont\cftdotfill{\cftfigdotsep}}
 %\renewcommand{\cftfigaftersnum}{}
 %\renewcommand{\cftfigaftersnumb}{\relax\hspace{-\len@cftfigpresnum}}
 %\renewcommand\cftfigafterpnum{\vspace{1em}}                                    % <ALT>{\vspace{-6pt}}
@@ -978,9 +1000,12 @@
 \newcommand{\thesisLoFpage}
 {
 	\if@makeLoF
-        \renewcommand*{\addvspace}[1]{}                                         % Blake, 2023: Removes extra space separating LoF entries from different chapters
+        %\let\save@addvspace\addvspace                                           % Blake, 2023: Save \addvspace def before overwriting
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
+        %\renewcommand*{\addvspace}[1]{}                                         % Blake, 2023: Removes extra space separating LoF entries from different chapters
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
         %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021: ADDS 0.25" space before LoF entry in ToC
-        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\cftLoFtitle}
 		\renewcommand*{\listfigurename}{\vspace*{-0.27in}\centering\normalsize\normalfont\LoFHeading\vspace{-0.25in}}
@@ -988,6 +1013,7 @@
 		\listoffigures
 		\end{singlespace}
 		\clearpage
+        %\let\addvspace\save@addvspace                                           % Blake, 2023: Restore \addvspace def before returning to document context
 	\fi
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -1002,9 +1028,12 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\thesisLoTpage}{
 	\if@makeLoT
-		\renewcommand*{\addvspace}[1]{}                                         % Blake, 2023: Removes extra space separating LoF entries from different chapters
+        %\let\save@addvspace\addvspace                                           % Blake, 2023: Save \addvspace def before overwriting
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
+        %\renewcommand*{\addvspace}[1]{}                                         % Blake, 2023: Removes extra space separating LoF entries from different chapters
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
         %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021: ADDS 0.25" space before LoF entry in ToC
-        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\cftLoTtitle}
 		\renewcommand*{\listtablename}{\vspace*{-0.27in}\centering\normalsize\normalfont\LoTHeading\vspace{-0.25in}}
@@ -1012,6 +1041,7 @@
 		\listoftables
 		\end{singlespace}
 		\clearpage
+        %\let\addvspace\save@addvspace                                           % Blake, 2023: Restore \addvspace def before returning to document context
 	\fi
 }
 %===============================================================================================================================%
@@ -1030,20 +1060,23 @@
 		\typeout{**************************}
 		\typeout{Chapter \thechapter}%
         \ifnum \value{section} <\@ne
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
             \addcontentsline{toc}{chapter}{%
                 \protect\rm\ARABICText{\thechapter}%                            % Blake, 2023: 1st \chapter ToC line in Appendix
                 \vspace{-0.5\baselineskip-6pt}%
             }%
         \fi
 		%\addcontentsline{toc}{chapter}{\protect\numberline{\rm\thechapter}\rm#1}% Blake, 2023: REPLACED- removed chapter numbering from ToC entry
+%**************************** MANUAL ToC H-SPACING HACK ************************************************************************************
         \addcontentsline{toc}{chapter}{\protect{\hspace{0.25in}\rm#1}}%         % Blake, 2023: Indent 2nd \ToC line; \hspace spacing hack
 	\else
 		\addcontentsline{toc}{chapter}{\singlespacing{#2}}%
 	\fi
 	\chaptermark{#1}%
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
 	% I expect if they notice this additional LoF/LoT spacing between entries from different chapters, they will request it be removed.
-    \addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
-    \addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
+    %\addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
+    %\addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
 	\begingroup
 		\centering
 		\vspace*{0.43in}
@@ -1072,21 +1105,18 @@
 		\typeout{Chapter \thechapter}%
         \ifnum \value{section} <\@ne
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-%**************************** MANUAL ToC H-SPACING HACK ************************************************************************************
-%**************************** MANUAL ToC ENTRY LABELING HACK ************************************************************************************
             \addcontentsline{toc}{chapter}{%
                 \protect\rm\ARABICText{\thechapter}\vspace{-0.5\baselineskip-6pt}%
             }%
         \fi
 		%\addcontentsline{toc}{chapter}{\protect\numberline{\rm\thechapter}\rm#1}
-%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
 %**************************** MANUAL ToC H-SPACING HACK ************************************************************************************
-%**************************** MANUAL ToC ENTRY LABELING HACK ************************************************************************************
         \addcontentsline{toc}{chapter}{\protect{\hspace{0.25in}\rm#1}}%         % Blake, 2023: Removed chapter numbering from ToC labels
 	\else
 		\addcontentsline{toc}{chapter}{\singlespacing{#2}}%
 	\fi
 	\chaptermark{#1}%
+%**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
 	% I expect if they notice this additional LoF/LoT spacing between entries from different chapters, they will request it be removed.
     \addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
     \addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
@@ -1112,12 +1142,14 @@
     \@startsection{subsection}{1}{0pt}{1em}{0.001ex}                            % skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virually none
 	{\centering\normalfont\slshape\normalsize}[\hspace{-3ex}\ToCentry]{##2}
 }
+%-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\subsection@singular@appendix}[2][]                                 % move down 1 level
 {%
 7    \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
 	\@startsection{subsubsection}{2}{0pt}{0.001ex}{0.001ex}
 	{\vspace{1em}\normalfont\slshape\normalsize}[\hspace{-3ex}\ToCentry]{##2}
 }
+%-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\subsubsection@singular@appendix}[2][]                              % move down 1 level
 {%
     \vspace{1em}
@@ -1166,8 +1198,6 @@
 
         \thispagestyle{plain}
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-%**************************** MANUAL ToC H-SPACING HACK ************************************************************************************
-%**************************** MANUAL ToC ENTRY LABELING HACK ************************************************************************************
 		\addtocontents{toc}{\protect\vspace{-0.25in}}
         \phantomsection                                                         % Anchor the bookmark to this position
         %\renewcommand\chapterToCtitle{}                                        % Blake, 2023:
@@ -1188,6 +1218,7 @@
             \let\section\section@singular@appendix                              % redefine \section for use in singular Appendix
             \let\subsection\subsection@singular@appendix                        % redefine \subsection for use in singular Appendix
             \let\subsubsection\subsubsection@singular@appendix                  % redefine \subsubsection for use in singular Appendix
+%           Blake, 2023: These explicit redefinitions are selected for possible removal if the above \let lines prove reliable
 %            \renewcommand{\section}[2][]                                        % move down 1 level, use optional \section parameter to fix ToC num/title gap by -3ex
 %            {%
 %                \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
@@ -1209,8 +1240,6 @@
 %            }
             \addcontentsline{toc}{part}{\normalsize\normalfont\appendixToCtitle}% set ToC title to Appendix
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-%**************************** MANUAL ToC H-SPACING HACK ************************************************************************************
-%**************************** MANUAL ToC ENTRY LABELING HACK ************************************************************************************
             \addtocontents{toc}{\protect\vspace{-\baselineskip}}                % reduce to \section sized skip
         }
         {
@@ -1353,7 +1382,7 @@
 \RequirePackage{algorithm}                      % Adds titledauto numbered environment enclosing 'algorithmic' environment content
 %\algsetup{linenodelimiter=)}
 \RequirePackage{enumitem}                       % Provides more options/control of enumerate environment numbering/lettering
-\RequirePackage{scalerel}                       %  relative scale/stretch delimiters
+\RequirePackage{scalerel}                       % relative scale/stretch delimiters
 \RequirePackage{stackengine}                    % Add ability to stack text, math, symbols/glyphs, images, etc
 %\RequirePackage{isodate}
 \RequirePackage{datetime2}
@@ -1361,23 +1390,22 @@
 \RequirePackage[normalem]{ulem}                 % Provides text underlining/strikethrough commands and customizations
 \RequirePackage{txfonts}
 \RequirePackage{amsfonts}
-\RequirePackage{bbm}
-%\RequirePackage{bickham}
-%\RequirePackage{pifont}                         % access to dingbat symbols
-%\RequirePackage{pxfonts}
+\RequirePackage{bbm}                            % Blackboard bold font package (e.g. creating symbols for reals (R), integers (Z), etc.)
+%\RequirePackage{bickham}                       % Script font style package
+%\RequirePackage{pifont}                        % access to dingbat symbols
+%\RequirePackage{pxfonts}                       % pxfont font package
 %\RequirePackage{bibentry}
-%    \nobibliography*    % Read in .bbl file entries for in text \bibentry citations, but also create back matter Bibliography
-%\RequirePackage[printwatermark]{xwatermark}
-%\RequirePackage{draftwatermark}
-%\SetWatermarkText{PREPRINT}
-%\SetWatermarkScale{0.65}
-%\SetWatermarkLightness{0.925}
+%    \nobibliography*                           % Read in .bbl file entries for in text \bibentry citations, but also create back matter Bibliography
+%\RequirePackage[printwatermark]{xwatermark}    % Potential alternative package for watermarking pages
+%\RequirePackage{draftwatermark}                % Provides watermarking commands \SetWatermarkX
+%\SetWatermarkText{PREPRINT}                    % Set the watermark text to "PREPRINT"
+%\SetWatermarkScale{0.65}                       % Sets the scale factor for the watermark text
+%\SetWatermarkLightness{0.925}                  % Set the opacity of the watermark text
 %\RequirePackage{cite}
 \RequirePackage{comment}
 \RequirePackage{pgf}                            % Implementation of "portable graphics format"=basic layer underlying "Tikz"
 \RequirePackage{tikz}                           % Provides extensive set of graphics/drawing commands
-%-------------------------------------------------------------------------------------------------------------------------------%
-%\makeatletter
+\RequirePackage{printlen}                       % Provides length printing and unit control commands
 %-------------------------------------------------------------------------------------------------------------------------------%
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Register Variable & List Definitions/Configurations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -1387,12 +1415,6 @@
 \newcounter{savedsection}
 \newcounter{numAppendices}
 \newlength\lsideWidth
-%\setlength\textheight{9.0in}
-%\setlength{\cftchapnumwidth}{2.85em}
-%\renewcommand*{\l@section}{\@dottedtocline{1}{1.5em}{2.3em}}
-%\renewcommand{\cftfigleader}{\normalfont\cftdotfill{\cftfigdotsep}}
-%\renewcommand\@tocrmarg{2.75em}
-%\renewcommand\@pnumwidth{1.85em}
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newlist{attributionList}{enumerate}{2}                         % For inserting publication atteributions on Attributions page
 \setlist[attributionList]{label=(\arabic*),ref={\arabic*},leftmargin=0.25in, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt}
@@ -1595,6 +1617,6 @@
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
 %*******************************************************************************************************************************%
-%************************************************ END: Dissertation-Preamble.tex ***********************************************%
+%******************************************************* END: thesis.cls *******************************************************%
 %*******************************************************************************************************************************%
 %-------------------------------------------------------------------------------------------------------------------------------%
