@@ -1009,9 +1009,9 @@
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\cftLoFtitle}
 		\renewcommand*{\listfigurename}{\vspace*{-0.27in}\centering\normalsize\normalfont\LoFHeading\vspace{-0.25in}}
-		\begin{singlespace}
+		\begin{doublespace}
 		\listoffigures
-		\end{singlespace}
+		\end{doublespace}
 		\clearpage
         %\let\addvspace\save@addvspace                                           % Blake, 2023: Restore \addvspace def before returning to document context
 	\fi
@@ -1037,9 +1037,9 @@
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\cftLoTtitle}
 		\renewcommand*{\listtablename}{\vspace*{-0.27in}\centering\normalsize\normalfont\LoTHeading\vspace{-0.25in}}
-		\begin{singlespace}
+		\begin{doublespace}
 		\listoftables
-		\end{singlespace}
+		\end{doublespace}
 		\clearpage
         %\let\addvspace\save@addvspace                                           % Blake, 2023: Restore \addvspace def before returning to document context
 	\fi
@@ -1118,8 +1118,8 @@
 	\chaptermark{#1}%
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
 	% I expect if they notice this additional LoF/LoT spacing between entries from different chapters, they will request it be removed.
-    \addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
-    \addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
+    %\addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
+    %\addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
 	\begingroup
 		\centering
 		\vspace*{0.43in}
