@@ -225,6 +225,7 @@
 \RequirePackage{newclude}                                                       % for newclude bibtex
 \RequirePackage{breakcites}                                                     % ensures multiple citations may break at line end
 \RequirePackage[titles]{tocloft}                                                % ToC/LoF/LoT formatting controls
+\RequirePackage{suffix}                                                         % Provides \WithSuffix to create starred versions of \newcommand commands
 %-------------------------------------------------------------------------------------------------------------------------------%
 % NOTE: \@m=1000, \@M=10000, \@MM=20000
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -404,8 +405,8 @@
 % + changed vspacing from 0.43in to 0.41in to better generate heading at 1.5"
 % + changed chapter numbering to (UPPERCASE) number names in the heading/ToC using \ARABICText
 %-------------------------------------------------------------------------------------------------------------------------------%
-\def\@chapter[#1]#2
-{% Chapter heading	
+\def\@chapter[#1]#2%
+{%  USAGE: \@chapter[<short ToC title]{<full title>}
     \setcounter{footnoteA}{0}                                                   % the footnotes should start with 1 in each chapter	
 	\ifnum \c@secnumdepth >\m@ne
 		\refstepcounter{chapter}%
@@ -442,11 +443,13 @@
 	\@afterheading
 }
 %===============================================================================================================================%
-%-------------------------------------------- (Level 3) Section command & headings ---------------------------------------------%
+%-------------------------------------------- (Level 3) Section commands & headings --------------------------------------------%
 %===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2023: Added for better control over section ToC entries
+%-------------------------------------------------------------------------------------------------------------------------------%
 \def\@sect#1#2#3#4#5#6[#7]#8%
-{% Section heading
-    %\vspace{\baselineskip}
+{%  USAGE: \@sect{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}[<altheading>]{<heading>}
     \ifnum #2>\c@secnumdepth
         \let\@svsec\@empty
     \else
@@ -465,7 +468,7 @@
             \ifnum #2>\c@secnumdepth \else
 %**************************** MANUAL ToC ENTRY LABELING HACK ************************************************************************************
                 %\protect\numberline{\csname the#1\endcsname}%
-                \protect\numberline{}%\csname the#1\endcsname
+                \protect\numberline{}%\csname the#1\endcsname                   % Blake, 2023: Remove content from \numberline (may be better to drop \numberline{} entirely
             \fi
             #7%
         }%
@@ -486,14 +489,46 @@
     \@xsect{#5}
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Blake, 2021: Reverted the \section command to 2 parameters, where optional [#1] provides a "short title" option for its ToC entry
+% Redefinition of \section command, CASE: \@ifstar = FALSE (i.e. \section* NOT used)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2021: Reverted the \section command from 1 to 2 parameters, where optional [#1] provides a "short title" ToC entry option
+% Blake, 2023: the \section* variant did not function properly, so several definitions were added/changed to fix this
+% NOTE (Blake, 2023): \section originally had 0 arguments but was redefined here to have 2. Hence, the \section[#1]{#2}
+% arguments expanded by \section must be appendeded to \@startsection so \@sect and \@ssect have the expected arguments.
+% The benefits of this approach instead of a parameterless \section definition are:
+% + \section arguments can be altered/formatted before appending them back on the stack
+% + \section*[]{} permits the inclusion of the optional [#1] argument, which it could not do originally and simply ignores it
+% + provides direct and independent control over \section and \section* without requiring \@startsection to be redefined
+% The cost is a considerable amount of additional/replacement TeX code and increased complexity, but this is currently considered
+% not to be costly enough to warrant reverting back to a parameterless \section and foregoing the aforementioned benefits.
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\section}[2][]
-{% Section command
+{%  USAGE: \section[<alt-heading=short ToC title>]{<heading>}
     \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
-    %NOTE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}*[<altheading>]{<heading>}
-	\@startsection{section}{2}{0pt}{1em}{0.001ex}%skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virtually none
-	{\centering\normalfont\slshape\normalsize}[\ToCentry]{#2}
+    % USAGE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}<*>
+    \@startsection%
+    % USAGE: \@sect{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}[<altheading>]{<heading>}
+    {section}{1}%                                                               % expanded immediately by \@startsection and passed directly to \@sect
+    {0pt}{1em}{0.001ex}{\centering\normalfont\slshape\normalsize}%              % expanded immediately by \@startsection and passed directly to \@sect
+    %[<alt-heading=short ToC title>]{<heading>}                                 <- \section[<alt-heading=short ToC title>]{<heading>}
+    [\ToCentry]{#2}%                                                            % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
+}
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Definition of \section* command, CASE: \@ifstar = TRUE (i.e. \section* IS used -> yields no ToC entry)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2023: Added support for usage of \section*[]{} variant command, which expands the optional [<short title>] parameter
+% but CANNOT append it to \@startsection since \@ssect, which DOES NOT have an optional [<>] parameter, is expanded when \@ifstar = TRUE
+%-------------------------------------------------------------------------------------------------------------------------------%
+\WithSuffix\newcommand\section*[2][]
+{%  USAGE: \section*[<alt-heading=short ToC title>]{<heading>}
+    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}                       % Blake, 2023: kept for now, but unnecessary here since ONLY {<heading>} is or can be passed to \@ssect
+    %USAGE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}<*>
+    \@startsection%
+    {section}{1}{0pt}%                                                          % expanded immediately by \@startsection but NOT passed to \@ssect
+    %USAGE: \@ssect{<indent>}{<beforeskip>}{<afterskip>}{<style>{<heading>}
+    {1em}{0.001ex}{\centering\normalfont\slshape\normalsize}*%                  % expanded immediately by \@startsection and passed directly to \@ssect since \@ifstar = true
+    %{<heading>}                                                                <- \section*[<alt-heading=short ToC title>]{<heading>}
+    {#2}%                                                                       % unexpanded by \@startsection, only expanded by \@ssect inside \@startsection macro
 }
 %===============================================================================================================================%
 %------------------------------------------- (Level 4) Subsection command & headings -------------------------------------------%
@@ -504,30 +539,97 @@
 % IF there is level 4 header immediately after level 3,
 %   THEN distance between Level 3 and Level 4 = triplespace.
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Blake, 2021: Reverted the \subsection command to 2 parameters, where optional [#1] provides a "short title" optiono for its ToC entry
+% Redefinition of \subsection command, CASE: \@ifstar = FALSE (i.e. \subsection* NOT used)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2021: Reverted the \subsection command to 2 parameters, where optional [#1] provides a "short title" ToC entry option
+% Blake, 2023: the \subsection* variant did not function properly, so several definitions were added/changed to fix this
+% NOTE (Blake, 2023): \subsection originally had 0 arguments but was redefined here to have 2. Hence, the \subsection[#1]{#2}
+% arguments expanded by \subsection must be appendeded to \@startsection so \@sect and \@ssect have the expected arguments.
+% The benefits of this approach instead of a parameterless \subsection definition are:
+% + \subsection arguments can be altered/formatted before appending them back on the stack
+% + \subsection*[]{} permits the inclusion of the optional [#1] argument, which it could not do originally, and simply ignores
+% + provides direct and independent control over \subsection and \subsection* without requiring \@startsection to be redefined
+% The cost is a considerable amount of additional/replacement TeX code and increased complexity, but this is currently considered
+% not to be costly enough to warrant reverting back to a parameterless \subsection and foregoing the aforementioned benefits.
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\subsection}[2][]
-{% Subsection command
+{%  USAGE: \subsection[<alt-heading=short ToC title>]{<heading>}
     \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
-	%NOTE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}*[<altheading>]{<heading>}
-	\@startsection{subsection}{2}{0pt}{0.001ex}{0.001ex}
-	{\vspace{1em}\normalfont\slshape\normalsize}[\hspace{-0.5in}\ToCentry]{#2}
+    % USAGE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}<*>
+    \@startsection%
+    % USAGE: \@sect{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}[<altheading>]{<heading>}
+    {subsection}{2}{0pt}                                                        % expanded immediately by \@startsection and passed directly to \@sect
+    {0.001ex}{0.001ex}{\vspace{1em}\normalfont\slshape\normalsize}              % expanded immediately by \@startsection and passed directly to \@sect
+    %[<alt-heading=short ToC title>]{<heading>}                                 <- \subsection[<alt-heading=short ToC title>]{<heading>}
+    [\hspace{-0.5in}\ToCentry]{#2}                                              % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
+}
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Definition of \subsection* command, CASE: \@ifstar = TRUE (i.e. \subsection* IS used -> yields no ToC entry)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2023: Added support for usage of \subsection*[]{} variant command, which expands the optional [<short title>] parameter
+% but CANNOT append it to \@startsection since \@ssect, which DOES NOT have an optional [<>] parameter, is expanded when \@ifstar = TRUE
+%-------------------------------------------------------------------------------------------------------------------------------%
+\WithSuffix\newcommand\subsection*[2][]
+{%  USAGE: \subsection*[<alt-heading=short ToC title>]{<heading>}
+    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}                       % Blake, 2023: kept for now, but unnecessary here since ONLY {<heading>} is or can be passed to \@ssect
+    %USAGE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}<*>
+    \@startsection%
+    {subsection}{2}{0pt}%                                                       % expanded immediately by \@startsection but NOT passed to \@ssect
+    %USAGE: \@ssect{<indent>}{<beforeskip>}{<afterskip>}{<style>{<heading>}
+    {0.001ex}{0.001ex}{\vspace{1em}\normalfont\slshape\normalsize}*%            % expanded immediately by \@startsection and passed directly to \@ssect since \@ifstar = true
+    %{<heading>}                                                                <- \subsection*[<alt-heading=short ToC title>]{<heading>}
+    {#2}                                                                        % unexpanded by \@startsection, only expanded by \@ssect inside \@startsection macro
 }
 %===============================================================================================================================%
 %----------------------------------------- (Level 5) Subsubsection command & headings ------------------------------------------%
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
+% Redefinition of \subsubsection command, CASE: \@ifstar = FALSE (i.e. \subsubsection* NOT used)
+%-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2021: Changed "Level 5" heading from \parindent to 0\p@ as requested by Grad School
-% Blake, 2021: Reverted the \subsubsection command to 2 parameters, where optional [#1] provides a "short title" option for its ToC entry
+% Blake, 2021: Reverted the \subsubsection command to 2 parameters, where optional [#1] provides a "short title" ToC entry option
+% Ha, 2023: Reverted "Level 5" heading indentation BACK to \parindent as it had been before
+% Blake, 2023: the \subsubsection* variant did not function properly, so several definitions were added/changed to fix this
+% NOTE (Blake, 2023): \subsubsection originally had 0 arguments but was redefined here to have 2. Hence, the \subsubsection[#1]{#2}
+% arguments expanded by \subsubsection must be appendeded to \@startsection so \@sect and \@ssect have the expected arguments.
+% The benefits of this approach instead of a parameterless \subsubsection definition are:
+% + \subsubsection arguments can be altered/formatted before appending them back on the stack
+% + \subsubsection*[]{} permits the inclusion of the optional [#1] argument, which it could not do originally, and simply ignores
+% + provides direct and independent control over \subsubsection and \subsubsection* without requiring \@startsection to be redefined
+% The cost is a considerable amount of additional/replacement TeX code and increased complexity, but this is currently considered
+% not to be costly enough to warrant reverting back to a parameterless \subsubsection and foregoing the aforementioned benefits.
+%-------------------------------------------------------------------------------------------------------------------------------%
+\renewcommand{\subsubsection}[2][]
+{%  USAGE: \subsubsection[<alt-heading=short ToC title>]{<heading>}
+    \vspace{1em}
+    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
+    % USAGE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}<*>
+    \@startsection%
+    % USAGE: \@sect{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}[<altheading>]{<heading>}
+    {subsubsection}{3}%                                                         % expanded immediately by \@startsection and passed directly to \@sect
+    {\parindent}{0.001em}{-1em}{\normalfont\slshape\normalsize}%                % expanded immediately by \@startsection and passed directly to \@sect
+    %[<alt-heading=short ToC title>]{<heading>}                                 <- \subsubsection[<alt-heading=short ToC title>]{<heading>}
+    [\ToCentry]{#2\hspace{-3ex}}%                                               % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
+    {.}%                                                                        % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
+}
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Definition of \subsubsection* command, CASE: \@ifstar = TRUE (i.e. \subsubsection* IS used -> yields no ToC entry)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2023: Added support for usage of \subsection*[]{} variant command, which expands the optional [<short title>] parameter
+% but CANNOT append it to \@startsection since \@ssect, which DOES NOT have an optional [<>] parameter, is expanded when \@ifstar = TRUE
 % Ha, 2023: Reverted "Level 5" heading indentation BACK to \parindent as it had been before
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\subsubsection}[2][]
-{% Subsubsection command
+{%  USAGE: \subsubsection*[<alt-heading=short ToC title>]{<heading>}
     \vspace{1em}
-	\ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
-	%NOTE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}*[<altheading>]{<heading>}
-    \@startsection{subsubsection}{3}{\parindent}{0.001em}{-1em}%
-    {\normalfont\slshape\normalsize}[\ToCentry]{#2\hspace{-3ex}}{.}             % adds a period/fullstop/dot after the title
+    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}                       % Blake, 2023: kept for now, but unnecessary here since ONLY {<heading>} is or can be passed to \@ssect
+    %USAGE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}<*>
+    \@startsection{subsubsection}{3}%                                           % expanded immediately by \@startsection but NOT passed to \@ssect
+    %USAGE: \@ssect{<indent>}{<beforeskip>}{<afterskip>}{<style>{<heading>}
+    {\parindent}{0.001em}{-1em}{\normalfont\slshape\normalsize}*%               % expanded immediately by \@startsection and passed directly to \@ssect since \@ifstar = true
+    %{<heading>}                                                                <- \subsubsection*[<alt-heading=short ToC title>]{<heading>}
+    {#2\hspace{-3ex}}%                                                          % unexpanded by \@startsection, only expanded by \@ssect inside \@startsection macro
+    {.}%                                                                        % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
 }
 %===============================================================================================================================%
 %--------------------------------------- List Control: Itemize/Enumerate list commands -----------------------------------------%
@@ -680,7 +782,8 @@
 \RequirePackage{pdfpages}                                                       % Provides clean PDF insertion capability (Blake added, 2021)
 \newif\if@insertSignaturePage\@insertSignaturePagefalse
 \newcommand*\signaturePageAddr{}
-\newcommand*\insertSignaturePage[1]{
+\newcommand*\insertSignaturePage[1]
+{%  USAGE: \insertSignaturePage{<PDF file location>}
     \@insertSignaturePagetrue
     \renewcommand*\signaturePageAddr{#1}
 }
@@ -688,28 +791,28 @@
 % Internal macro for drawing signature lines
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand*{\thesisSignature}[2]
-{
-		\normalsize
-		\vspace{0.05in}
-		\\
-		\vrule width #2 height 0.2mm
-        \\
-        \vspace{-0.15in}
-		#1
+{%  USAGE: \thesisSignature{<text>}{<vrule width>}
+    \normalsize
+    \vspace{0.05in}
+    \\
+    \vrule width #2 height 0.2mm
+    \\
+    \vspace{-0.15in}
+    #1
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
 %****************************************************** UNDER CONTRUCTION ******************************************************%
 % Blake, 2021: In progress with title page.
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\newcommand*{\thesisSignature}[2]
-%{
-%		\normalsize
-%		%\vspace{0.05in}
-%		%\\
-%		\vrule width #2 height 0.1mm\\[0.1mm-2ex]
-%        %[-0.5\baselineskip]
-%        %\vspace{0.5em}
-%		#1
+%{%  USAGE: \thesisSignature{<text>}{<vrule width>}
+%    normalsize
+%   %\vspace{0.05in}
+%   %\\
+%   \vrule width #2 height 0.1mm\\[0.1mm-2ex]
+%   %[-0.5\baselineskip]
+%   %\vspace{0.5em}
+%   #1
 %}
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Title/signature page contruction
@@ -1064,11 +1167,12 @@
 % Appendix/Appendices title page and content page(s) contruction [if applicable]
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Blake, 2023: Added for automatic Appendix vs. Appendices handling according to format guidelines.
-% Replaces \@chapter in the case there is only 1 Appendix chapter. Removes "A" from \numberline and heading ( via \ARABICText{\thechapter} removal)
+% Appendix chapter construction: CASE = 2+ appendix chapters (APPENDICES)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2023: Added for defining chapter behavior for multiple 'APPENDICES' (replaces \@chapter)
 %-------------------------------------------------------------------------------------------------------------------------------%
 \def\@chapter@multiple@appendices[#1]#2
-{%
+{%  USAGE: \@chapter@multiple@appendices[<alt-heading=short ToC title]{<full title>}
     \setcounter{footnoteA}{0}                                                   % the footnotes should start with 1 in each chapter
 	
 	\ifnum \c@secnumdepth >\m@ne
@@ -1078,13 +1182,14 @@
         \ifnum \value{section} <\@ne
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
             \addcontentsline{toc}{chapter}{%
-                \protect\rm\ARABICText{\thechapter}%                            % Blake, 2023: 1st \chapter ToC line in Appendix
+                \protect\rm\thechapter                                          % Blake, 2023: 1st \chapter ToC line - adds appendix 'alph' numbering to "APPENDIX" (auto preprended as per redef of \addcontentsline in \NEW@redotocentry@pp)
+                %\protect\rm\ARABICText{\thechapter}                            % Blake, 2023: alternative - \ARABICText simply returns non-number inputs
                 \vspace{-0.5\baselineskip-6pt}%
             }%
         \fi
 		%\addcontentsline{toc}{chapter}{\protect\numberline{\rm\thechapter}\rm#1}% Blake, 2023: REPLACED- removed chapter numbering from ToC entry
 %**************************** MANUAL ToC H-SPACING HACK ************************************************************************************
-        \addcontentsline{toc}{chapter}{\protect{\hspace{0.25in}\rm#1}}%         % Blake, 2023: Indent 2nd \ToC line; \hspace spacing hack
+        \addcontentsline{toc}{chapter}{\protect{\hspace{0.25in}\rm#1}}%         % Blake, 2023: Indent 2nd ToC line and print ONLY the APPENDIX chapter title (no numbering)
 	\else
 		\addcontentsline{toc}{chapter}{\singlespacing{#2}}%
 	\fi
@@ -1099,7 +1204,8 @@
         %\MakeUppercase{\old@appendixname}%                                     % Restore "APPENDIX"/"Appendix" in Appendix chapter headings
         \MakeUppercase{\appendixHeading}%                                       % Restore "APPENDIX"/"Appendix" in Appendix chapter headings
         \hspace{-0.25em}                                                        % for the chapter text to look pretty.
-        \space\ARABICText{\thechapter}                                          % Blake, 2023: print chapter number as UPPERCASE number name in heading
+        \space\thechapter                                                       % Blake, 2023: print 'alph' chapter number after text heading
+        %\space\ARABICText{\thechapter}                                         % Blake, 2023: alternative - \ARABICText simply returns non-number inputs; if \thechapter format in APPENDIX is ever changed, this would still work properly
 		\vspace{-1ex}
 		\singlespacing{#2}\\
 		\vspace{0.13in}
@@ -1107,11 +1213,12 @@
 	\@afterheading
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Blake, 2021: Added for automatic Appendix vs. Appendices handling according to format guidelines.
-% Replaces \@chapter in the case there is only 1 Appendix chapter. Removes "A" from \numberline and heading ( via \ARABICText{\thechapter} removal)
+% Appendix chapter construction: CASE = 1 appendix chapter (APPENDIX)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2021: Added for defining chapter behavior for a single 'APPENDIX' (replaces \@chapter)
 %-------------------------------------------------------------------------------------------------------------------------------%
 \def\@chapter@singular@appendix[#1]#2
-{%
+{%  USAGE: \@chapter@singular@appendix[<alt-heading=short ToC title]{<full title>}
 	% the footnotes should start with 1 in each chapter
 	\setcounter{footnoteA}{0}
 	
@@ -1122,7 +1229,9 @@
         \ifnum \value{section} <\@ne
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
             \addcontentsline{toc}{chapter}{%
-                \protect\rm\ARABICText{\thechapter}\vspace{-0.5\baselineskip-6pt}%
+                %\protect\rm\ARABICText{\thechapter}%                           % Blake, 2023: removed so single APPENDIX is listed in ToC with no following 'alph' #
+                \protect\rm%                                                    % Blake, 2023: applies fontstyle and vspacing but yields only the preprended "APPENDIX" heading
+                \vspace{-0.5\baselineskip-6pt}%
             }%
         \fi
 		%\addcontentsline{toc}{chapter}{\protect\numberline{\rm\thechapter}\rm#1}
@@ -1143,7 +1252,7 @@
         %\MakeUppercase{\appendixHeading}%                                       % Restore "APPENDIX"/"Appendix" in Appendix chapter headings
         \MakeUppercase{\@chapapp{}}                                             % Blake, 2023: this may need to be changed, but will be left intact for now
         \hspace{-0.25em}                                                        % for the chapter text to look pretty.
-        %\ARABICText{\thechapter}                                               % Blake, 2023: Removed APPENFIX numbering when there is only a single appendix (numAppendices=1)
+        %\ARABICText{\thechapter}                                               % Blake, 2023: Removed APPENDIX numbering when there is only a single appendix (numAppendices=1)
 		\vspace{-1ex}
 		\singlespacing{#2}\\
 		\vspace{0.13in}
@@ -1155,21 +1264,21 @@
 % \thesisAppendixPage with \let\Xsection\Xsection@singular@appendix statements using the following variant sectioning commands
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\section@singular@appendix}[2][]                                    % move down 1 level, use optional \section parameter to fix ToC num/title gap by -3ex
-{%
+{%  USAGE: \section@singular@appendix[<alt-heading=short ToC title>]{<heading>}
     \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
     \@startsection{subsection}{1}{0pt}{1em}{0.001ex}                            % skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virually none
 	{\centering\normalfont\slshape\normalsize}[\hspace{-3ex}\ToCentry]{##2}
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\subsection@singular@appendix}[2][]                                 % move down 1 level
-{%
-7    \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
+{%  USAGE: \subsection@singular@appendix[<alt-heading=short ToC title>]{<heading>}
+    \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
 	\@startsection{subsubsection}{2}{0pt}{0.001ex}{0.001ex}
 	{\vspace{1em}\normalfont\slshape\normalsize}[\hspace{-3ex}\ToCentry]{##2}
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\subsubsection@singular@appendix}[2][]                              % move down 1 level
-{%
+{%  USAGE: \subsubsection@singular@appendix[<alt-heading=short ToC title>]{<heading>}
     \vspace{1em}
     \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
 	\@startsection{paragraph}{3}{0\p@}{0.001em}{-1em}%
