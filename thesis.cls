@@ -86,6 +86,7 @@
 %       - Removed extra space separating groups of Figures/Tables from different chapters
 % + Modified Appendix/Appendices to have the same heading and ToC title behavior as the updated CHAPTER formatting
 % + Reorganized & improved partitioning of this file, added/updated comments, & began cleaning up the TeX code
+% + Added support for the usage of starred variants \<sub, subsub>section* in the main document body
 %===============================================================================================================================%
 % TODO:
 %===============================================================================================================================%
@@ -118,6 +119,7 @@
 % + there is far too much repeated code, which would be much easier to manage if encapsulated in macros. This would also make
 %   the code much shorter and more readable. The priority in 2021/2023 was making it work, but this needs to be cleaned up ASAP
 % + fix 'sunappendices' so that the word "APPENDIX" doesn't appear prepended to the title of each of its \<sub>section in the ToC
+% + add support for the usage of starred variants \<sub, subsub>section* in the APPENDIX/APPENDICES (main body usage is now supported)
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Ha, 2023
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -609,8 +611,8 @@
     {subsubsection}{3}%                                                         % expanded immediately by \@startsection and passed directly to \@sect
     {\parindent}{0.001em}{-1em}{\normalfont\slshape\normalsize}%                % expanded immediately by \@startsection and passed directly to \@sect
     %[<alt-heading=short ToC title>]{<heading>}                                 <- \subsubsection[<alt-heading=short ToC title>]{<heading>}
-    [\ToCentry]{#2\hspace{-3ex}}%                                               % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
-    {.}%                                                                        % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
+    [\ToCentry]{#2}%                                               % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
+    {\hspace{-2ex}.}%                                                                        % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Definition of \subsubsection* command, CASE: \@ifstar = TRUE (i.e. \subsubsection* IS used -> yields no ToC entry)
@@ -628,8 +630,8 @@
     %USAGE: \@ssect{<indent>}{<beforeskip>}{<afterskip>}{<style>{<heading>}
     {\parindent}{0.001em}{-1em}{\normalfont\slshape\normalsize}*%               % expanded immediately by \@startsection and passed directly to \@ssect since \@ifstar = true
     %{<heading>}                                                                <- \subsubsection*[<alt-heading=short ToC title>]{<heading>}
-    {#2\hspace{-3ex}}%                                                          % unexpanded by \@startsection, only expanded by \@ssect inside \@startsection macro
-    {.}%                                                                        % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
+    {#2}%                                                                       % unexpanded by \@startsection, only expanded by \@ssect inside \@startsection macro
+    {\hspace{-2ex}.}%                                                           % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
 }
 %===============================================================================================================================%
 %--------------------------------------- List Control: Itemize/Enumerate list commands -----------------------------------------%
