@@ -22,7 +22,7 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake Schultze (2021): cloned 'BaylorCS/baylor-cs-thesis' repo and ammended
 % Blake Schultze (2023): updated to conform to 9/30/2022 version of 'Dissertation and Thesis Guidelines'
-% Blake Schultze (2023): updates made on behalf of ECS graduate Ha Nguyen
+% Ha Nguyen (2023): updates made on behalf of and with the help of ECS graduate Ha Nguyen
 %===============================================================================================================================%
 %---------------------------------------------------------- Changelog ----------------------------------------------------------%
 %===============================================================================================================================%
@@ -118,6 +118,10 @@
 % + there is far too much repeated code, which would be much easier to manage if encapsulated in macros. This would also make
 %   the code much shorter and more readable. The priority in 2021/2023 was making it work, but this needs to be cleaned up ASAP
 % + fix 'sunappendices' so that the word "APPENDIX" doesn't appear prepended to the title of each of its \<sub>section in the ToC
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Ha, 2023
+%-------------------------------------------------------------------------------------------------------------------------------%
+% + Changed Level 5 heading back to \parindent as per 2023 guidelines (which it had been prior to 2021 guidelines)
 %-------------------------------------------------------------------------------------------------------------------------------%
 %===============================================================================================================================%
 \ProvidesClass{thesis}[2014/06/01]
@@ -321,7 +325,7 @@
 \renewcommand*{\thesubsection}{\thesection.\arabic{subsection}}
 \renewcommand*{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Macro that converts a given number to a corresponding number name
+% Macro that converts an input number to a corresponding number name and returns other input types unaltered
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2023: renamed \arabicText as \ArabicText and converted UPPERCASE number
 % names to Capitalized number names. \ArabicText was then used to define \arabicText
@@ -329,18 +333,18 @@
 % \MakeUppercase, respectively.
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\ArabicText}[1]%
-{% number to Capitalized number name
-    %\space                                                                          % Blake, 2023: removed "Force a space"
-    \ifnum0<0#1                                                                 % Test for chapter number vs appendix letter
-		\ifcase#1
+{%
+    %\space                                                                     % Blake, 2023: removed "Forced space"
+    \ifnum0<0#1                                                                 % Test for number vs letter values
+        \ifcase#1                                                               % Input is #: return its Capitalized text name
 			Zero \or One \or Two \or Three \or Four \or
 			Five \or Six \or Seven \or Eight \or Nine \or Ten \or
 			Eleven \or Twelve \or Thirteen \or Fourteen \or
 			Fifteen \or Sixteen \or Seventeen \or Eighteen \or
 			Nineteen \or Twenty
 		\fi%
-	\else%
-        #1%                                                                     % Pass-through
+    \else%                                                                      % Input is non-number:
+        #1%                                                                     % Return (i.e. pass-through) non-number inputs unaltered
 	\fi%
 }
 \newcommand{\arabicText}[1]{\MakeLowercase{\ArabicText{#1}}}                    % number to lowercase number name
@@ -382,7 +386,7 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %*******************************************************************************************************************************%
 %===============================================================================================================================%
-%------------------------------------------------- Chapter command & headings --------------------------------------------------%
+%-------------------------------------------- (Level 2)  Chapter command & headings --------------------------------------------%
 %===============================================================================================================================%
 \renewcommand\chapter
 {% Chapter command
@@ -392,6 +396,13 @@
 	\@afterindentfalse
 	\secdef\@chapter\@schapter
 }
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Chapter behavior configurations (heading at 1.5")
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2023:
+% + Modified to 2-line ToC entries
+% + changed vspacing from 0.43in to 0.41in to better generate heading at 1.5"
+% + changed chapter numbering to (UPPERCASE) number names in the heading/ToC using \ARABICText
 %-------------------------------------------------------------------------------------------------------------------------------%
 \def\@chapter[#1]#2
 {% Chapter heading	
@@ -415,15 +426,15 @@
 	\fi
 	\chaptermark{#1}%
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-	% I expect if they notice this additional LoF/LoT spacing between entries from different chapters, they will request it be removed.
+	% Blake, 2023: Removed the following extra spacing between groups of Figure/Tables in the LoF/LoT from different chapters
     %\addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
     %\addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
 	\begingroup
 		\centering
-		\vspace*{0.43in}
+        \vspace*{0.41in}                                                        % Blake, 2023: Adjusted from 0.43in to 0.41in to better generate heading at 1.5"
 		\MakeUppercase{\@chapapp{}}%
         \hspace{-0.25em}                                                        % for the chapter text to look pretty.
-		\space\ARABICText{\thechapter}
+        \space\ARABICText{\thechapter}                                          % Blake, 2023: print chapter number as UPPERCASE number name in heading
 		\vspace{-1ex}
 		\singlespacing{#2}\\
 		\vspace{0.13in}
@@ -431,7 +442,7 @@
 	\@afterheading
 }
 %===============================================================================================================================%
-%------------------------------------------------- Section command & headings --------------------------------------------------%
+%-------------------------------------------- (Level 3) Section command & headings ---------------------------------------------%
 %===============================================================================================================================%
 \def\@sect#1#2#3#4#5#6[#7]#8%
 {% Section heading
@@ -485,7 +496,7 @@
 	{\centering\normalfont\slshape\normalsize}[\ToCentry]{#2}
 }
 %===============================================================================================================================%
-%------------------------------------------------ Subsection command & headings ------------------------------------------------%
+%------------------------------------------- (Level 4) Subsection command & headings -------------------------------------------%
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % IF there is content text immediately after level 3,
@@ -503,17 +514,19 @@
 	{\vspace{1em}\normalfont\slshape\normalsize}[\hspace{-0.5in}\ToCentry]{#2}
 }
 %===============================================================================================================================%
-%------------------------------------------------ Subsubsection command & headings ------------------------------------------------%
+%----------------------------------------- (Level 5) Subsubsection command & headings ------------------------------------------%
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2021: Changed "Level 5" heading from \parindent to 0\p@ as requested by Grad School
 % Blake, 2021: Reverted the \subsubsection command to 2 parameters, where optional [#1] provides a "short title" option for its ToC entry
+% Ha, 2023: Reverted "Level 5" heading indentation BACK to \parindent as it had been before
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\subsubsection}[2][]
 {% Subsubsection command
     \vspace{1em}
 	\ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
-	\@startsection{subsubsection}{3}{0\p@}{0.001em}{-1em}%
+	%NOTE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}*[<altheading>]{<heading>}
+    \@startsection{subsubsection}{3}{\parindent}{0.001em}{-1em}%
     {\normalfont\slshape\normalsize}[\ToCentry]{#2\hspace{-3ex}}{.}             % adds a period/fullstop/dot after the title
 }
 %===============================================================================================================================%
@@ -615,7 +628,7 @@
     \thesisAttributionspage                                                     % Blake added, 2021
 }
 %===============================================================================================================================%
-% Abstract page contruction (attempts to match BUGS 2013 guidelines)
+% Abstract page contruction (heading at 2.5")
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2021: Replaced "center" environment with grouped (temp) \centering justification clause,
@@ -634,7 +647,7 @@
 	\fi
 	\begingroup
         \centering
-        \vspace*{1.3in}%
+        \vspace*{1.28in}%                                                       % Blake, 2023: Reduced vspacing from 1.3in to 1.28in to better generate the heading at 2.5"
         \abstractHeading\\
 		\thesisTitle\\
 		\thesisAuthorName, \thesisSeeking\\
@@ -645,7 +658,7 @@
 	\clearpage
 }
 %===============================================================================================================================%
-% Title/Signature page contruction (attempts to match BUGS 2013 guidelines)
+% Title/Signature page contruction
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Special footer for the signature page
@@ -828,7 +841,7 @@
 %    \clearpage
 %}
 %===============================================================================================================================%
-% Copyright page contruction (attempts to match BUGS 2013 guidelines)
+% Copyright page contruction
 %===============================================================================================================================%
 %\newlength\Copyright@topskip
 %\setlength\Copyright@topskip{8.19in}
@@ -846,52 +859,50 @@
 	\fi
 }
 %===============================================================================================================================%
-% Acknowledgments page construction (optional)
+% Acknowledgments page construction (heading at 1.5") [optional]
 %===============================================================================================================================%
 \newcommand{\thesisAcknowledgementpage}
 {
     \if@makeAcknowledgements
         \thispagestyle{plain}
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-        %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
-        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to reduce triple to double spacing, replaced -0.25in with -\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\acknowledgeToCtitle}
 		\begin{center}\vspace*{0.3in}\normalfont\normalsize\acknowledgeHeading\end{center}
-		\hspace{\parindent}
-		\th@acknowledgementsStash
+        \hspace{\parindent}                                                     % Indent first line of text
+        \th@acknowledgementsStash                                               % Retrieve the text content that was temporarily stored in the stash
 		\clearpage
 	\fi
 }
 %===============================================================================================================================%
-% Dedication page construction (optional)
+% Dedication page construction (heading at 3.0") [optional]
 %===============================================================================================================================%
 \newcommand{\thesisDedicationpage}
 {
 	\if@makeDedication		
 		\thispagestyle{plain}
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-		%\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
-        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                   % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
-        \phantomsection  % Anchor the bookmark to this position
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to reduce triple to double spacing, replaced -0.25in with -\baselineskip
+        \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\dedicationToCtitle}
-		\begin{center}\vspace*{0.25in}\normalfont\normalsize\dedicationHeading{}\end{center} % SHOWS the dedication title on the page
-		%\begin{center}\vspace*{0.25in}\normalfont\normalsize{}\end{center} % DOES NOT show the dedication title on the actual page
-		\vspace{0.75in} % badhack to make sure dedication starts at 3inches from the top
-		\begin{center}\th@dedicationStash\end{center}
-		\clearpage
+        \begin{center}\vspace*{1.8in}\normalfont\normalsize\dedicationHeading{}\end{center} % SHOWS the dedication title on the page
+        %\begin{center}\vspace*{0.25in}\normalfont\normalsize{}\end{center}     % DOES NOT show the dedication title on the actual page
+        %\begin{center}\th@dedicationStash\end{center}                          % Blake, 2023: Replaced 'center' wrapped stash with unwrapped stash
+        \hspace{\parindent}                                                     % Indent first line of text
+        \th@dedicationStash                                                     % Retrieve the text content that was temporarily stored in the stash
+        \clearpage
 	\fi
 }
 %===============================================================================================================================%
-% Attributions page (optional) - Blake added, 2021
+% Attributions page construction (heading at 1.5") [if applicable] - Blake added, 2021
 %===============================================================================================================================%
 \newcommand{\thesisAttributionspage}
 {
 	\if@makeAttributions
 		\thispagestyle{plain}
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-        %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021
-        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to reduce triple to double spacing, replaced -0.25in with -\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\attributionToCtitle}
 		\begingroup
@@ -899,13 +910,13 @@
             \centering\normalfont\normalsize\attributionHeading\par
         \endgroup
         \vspace{-0.5\baselineskip}
-        \hspace{\parindent}
-        \th@attributionsStash
+        \hspace{\parindent}                                                     % Indent first line of text
+        \th@attributionsStash                                                   % Retrieve the text content that was temporarily stored in the stash
 		\clearpage
 	\fi
 }
 %===============================================================================================================================%
-% Table of Contents (ToC) page construction
+% Table of Contents (ToC): settings & configurations
 %===============================================================================================================================%
 % Uses the 'tocloft' package
 % NOTE: overflowing chapter titles MUST be single-spaced
@@ -960,7 +971,7 @@
 \cftsetindents{subsection}{1.25in}{0in}
 \cftsetindents{subsubsection}{1.0in}{0in}
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Table of Contents (ToC) page
+% Table of Contents (ToC) page construction (heading at 1.5")
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\setlength\cftbeforetoctitleskip{0.28in}                                       % Vertical skip before Table of Contents title
 %\setlength\cftaftertoctitleskip{0in}                                           % Vertical skip after Table of Contents title
@@ -973,7 +984,6 @@
         \normalsize\normalfont\ToCHeading%
         \vspace{-0.25in}%
     }
-	%\renewcommand*{\contentsname}{\centering\normalsize\normalfont\ToCHeading\\}
     %\renewcommand\cftparskip{-1.25\baselineskip}                               % Vertical skip between headings
     \begin{singlespace}
 	\tableofcontents
@@ -984,7 +994,7 @@
 % List of X (LoX) page constructions: X = Figures (LoF), Tables (LoT)
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
-% List of Figures (LoF) page (optional)
+% List of Figures (LoF) page construction (heading at 1.5") [if applicable]
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\setlength{\cftbeforeloftitleskip}{0.25in}
 %\setlength{\cftafterloftitleskip}{0in}
@@ -1004,11 +1014,14 @@
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
         %\renewcommand*{\addvspace}[1]{}                                         % Blake, 2023: Removes extra space separating LoF entries from different chapters
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-        %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021: ADDS 0.25" space before LoF entry in ToC
-        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to reduce triple to double spacing, replaced -0.25in with -\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\cftLoFtitle}
-		\renewcommand*{\listfigurename}{\vspace*{-0.27in}\centering\normalsize\normalfont\LoFHeading\vspace{-0.25in}}
+		\renewcommand*{\listfigurename}{%
+            \vspace*{-0.41in}%                                                  % Blake, 2023: Replaced -0.43in with -0.41in to better generate the heading at 1.5"
+            \centering\normalsize\normalfont\LoFHeading%
+            \vspace{-0.25in}%
+        }%
 		\begin{doublespace}
 		\listoffigures
 		\end{doublespace}
@@ -1017,7 +1030,7 @@
 	\fi
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
-% List of Tables (LoT) page (optional)
+% List of Tables (LoT) page construction (heading at 1.5") [if applicable]
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\setlength{\cftbeforelottitleskip}{-0.25in}
 %\setlength{\cftafterlottitleskip}{0in}
@@ -1032,11 +1045,14 @@
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
         %\renewcommand*{\addvspace}[1]{}                                         % Blake, 2023: Removes extra space separating LoF entries from different chapters
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-        %\addtocontents{toc}{\protect\vspace{-0.25in}}                          % Blake, 2021: ADDS 0.25" space before LoF entry in ToC
-        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to eliminate triple spacing, replaced -0.25in with -2\baselineskip
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to reduce triple to double spacing, replaced -0.25in with -\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
 		\addcontentsline{toc}{part}{\normalsize\normalfont\cftLoTtitle}
-		\renewcommand*{\listtablename}{\vspace*{-0.27in}\centering\normalsize\normalfont\LoTHeading\vspace{-0.25in}}
+		\renewcommand*{\listtablename}{%
+            \vspace*{-0.41in}%                                                  % Blake, 2023: Replaced -0.43in with -0.41in to better generate the heading at 1.5"
+            \centering\normalsize\normalfont\LoTHeading%
+            \vspace{-0.25in}%
+        }%
 		\begin{doublespace}
 		\listoftables
 		\end{doublespace}
@@ -1045,7 +1061,7 @@
 	\fi
 }
 %===============================================================================================================================%
-% Appendix/Appendices title page and content page(s) contruction
+% Appendix/Appendices title page and content page(s) contruction [if applicable]
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2023: Added for automatic Appendix vs. Appendices handling according to format guidelines.
@@ -1074,16 +1090,16 @@
 	\fi
 	\chaptermark{#1}%
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-	% I expect if they notice this additional LoF/LoT spacing between entries from different chapters, they will request it be removed.
+	% Blake, 2023: Removed the following extra spacing between groups of Figure/Tables in the LoF/LoT from different chapters
     %\addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
     %\addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
 	\begingroup
 		\centering
-		\vspace*{0.43in}
+        \vspace*{0.41in}                                                        % Blake, 2023: Adjusted from 0.43in to 0.41in to generate heading at 1.5"
         %\MakeUppercase{\old@appendixname}%                                     % Restore "APPENDIX"/"Appendix" in Appendix chapter headings
         \MakeUppercase{\appendixHeading}%                                       % Restore "APPENDIX"/"Appendix" in Appendix chapter headings
         \hspace{-0.25em}                                                        % for the chapter text to look pretty.
-        \space\ARABICText{\thechapter}                                          % if \thechapter is a number, print its name, otherwise pass through \thechapter unchanged
+        \space\ARABICText{\thechapter}                                          % Blake, 2023: print chapter number as UPPERCASE number name in heading
 		\vspace{-1ex}
 		\singlespacing{#2}\\
 		\vspace{0.13in}
@@ -1117,15 +1133,17 @@
 	\fi
 	\chaptermark{#1}%
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-	% I expect if they notice this additional LoF/LoT spacing between entries from different chapters, they will request it be removed.
+	% Blake, 2023: Removed the following extra spacing between groups of Figure/Tables in the LoF/LoT from different chapters
     %\addtocontents{lof}{\protect\addvspace{8\p@}}                               % 8pt spacing
     %\addtocontents{lot}{\protect\addvspace{8\p@}}                               % 8pt spacing
 	\begingroup
 		\centering
-		\vspace*{0.43in}
-		\MakeUppercase{\@chapapp{}}%
+        \vspace*{0.41in}                                                        % Blake, 2023: Adjusted from 0.43in to 0.41in to generate heading at 1.5"
+        %%\MakeUppercase{\old@appendixname}%                                     % Restore "APPENDIX"/"Appendix" in Appendix chapter headings
+        %\MakeUppercase{\appendixHeading}%                                       % Restore "APPENDIX"/"Appendix" in Appendix chapter headings
+        \MakeUppercase{\@chapapp{}}                                             % Blake, 2023: this may need to be changed, but will be left intact for now
         \hspace{-0.25em}                                                        % for the chapter text to look pretty.
-		%\ARABICText{\thechapter}
+        %\ARABICText{\thechapter}                                               % Blake, 2023: Removed APPENFIX numbering when there is only a single appendix (numAppendices=1)
 		\vspace{-1ex}
 		\singlespacing{#2}\\
 		\vspace{0.13in}
@@ -1185,7 +1203,8 @@
     }
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Appendix/Appendices page (depending on whether there is 1 "Appendix" or 2+ "Appendices"
+% Appendix/Appendices page construction (heading at center page) [if applicable]
+%       - heading depends on whether there is 1 "Appendix" or 2+ "Appendices"
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2021: Added for automatic Appendix vs. Appendices handling according to format guidelines. Also fixes vertical centering.
 % If singular Appendix detected (via .aux, so change detected on 2nd compile, then 3rd compile for .toc changes to take effect):
@@ -1198,7 +1217,7 @@
 
         \thispagestyle{plain}
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
-		\addtocontents{toc}{\protect\vspace{-0.25in}}
+        \addtocontents{toc}{\protect\vspace{-\baselineskip}}                    % Blake, 2023: Hack to reduce triple to double spacing, replaced -0.25in with -\baselineskip
         \phantomsection                                                         % Anchor the bookmark to this position
         %\renewcommand\chapterToCtitle{}                                        % Blake, 2023:
         %\appendixtitletocoff                                                   % remove "APPENDIX" from ToC chapter title
@@ -1251,14 +1270,14 @@
 
         }
         \vspace*{\fill}
-		\begingroup
+		\begingroup%
             \centering\normalfont\normalsize\thisAppendixHeading\\
         \endgroup
         \vspace*{\fill}
 		\clearpage
 }
 %===============================================================================================================================%
-% Redefine \thebibliography at the beginning of the main \document body
+% Redefine \thebibliography at the beginning of the main \document body (heading at 1.5")
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Intercept the bibliography body
@@ -1271,10 +1290,10 @@
 	{
 		\clearpage
 		\addcontentsline{toc}{chapter}{\bibname}
-		\vspace*{0.42in}
+        \vspace*{0.41in}                                                        % Blake, 2023: Adjusted from 0.42in to 0.41in to better generate heading at 1.5"
 		\centering\normalfont\normalsize\bibname
 		\vspace{2ex}
-		\intactCitations                                                      % prevents page breaks mid-citation
+        \intactCitations                                                        % prevents page breaks mid-citation
         \singlespacing
 		\list{[\arabic{enumi}]}
 		{
@@ -1565,7 +1584,7 @@
 	\renewcommand{\thesubsubsection}{\arabic{chapter}.\Alph{section}.\arabic{subsection}.\Roman{subsubsection}}
 	{
 		\centering
-		\vspace*{0.43in}
+		\vspace*{0.41in}
 		{\appendixname}
         \hspace{-0.25em} % for the chapter text to look pretty.
 		\ARABICText{\thechapter}
