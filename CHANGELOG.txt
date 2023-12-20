@@ -1,0 +1,98 @@
+%===============================================================================================================================%
+%---------------------------------------------------------- Changelog ----------------------------------------------------------%
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+Updating the Changelog: When logging new changes here to the CHANGELOG, follow the general syntax and organizational scheme
+						given by:
+						# Name, Year: comment clause
+						+ Name, Year: ADDED/CHANGED/REDEFINED/MOVED/etc. + description clause ... 
+						- Name, Year: REMOVED/DELETED/etc. + description clause ... 
+OR ALTERNATIVELY: "Name, Year:" Can be omitted if a Name/Year partition is added immediately before the list of  
+				   # (comment), '+' (addition), and '-' (deletion) clauses. An example of a partition clause can be seen where 
+				   "% Blake, 2021" is preceded/succeeded by "%----....----%" divider lines. 
+
+%-------------------------------------------------------------------------------------------------------------------------------%
+% NOTE: The Changelog records ALL previous changes and new changes should ONLY be appended to it. However, some of the comments
+% in the main body of this .cls file associated with previous changes have been (and should be) removed or replaced when they
+% are no longer applicable/accurate, particularly comments referring to TeX that has since been changed and, thus, are
+% potentially confusing and/or superfluous
+%-------------------------------------------------------------------------------------------------------------------------------%
+% changes to the TeX render previous comments
+% Added \comment{} - simplifies multiline comments
+% Fixed spaces after floats: images & tables
+% -- NOTE:
+%    This only works when floats are at top of page. There is no guarantee that inline images and tables
+%    Will actually work. If anybody needs this, will need to be fixed
+% final version changelog:
+% Dedication: Moved to 3 inches from the top, removed title ("DEDICATION") from the top of the page
+% Double spacing AFTER level 3 (\subsection) when text follows.
+% Add period after level 5 (followed by 2 spaces)
+% Added APPENDICES separator page
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2021
+%-------------------------------------------------------------------------------------------------------------------------------%
+% 	+ Added "Attributions" page
+%   	+ includes enumerated 'attributionsList' and itemized 'authorList' for attribution & author contributions \item's
+%   	+ includes 'attribution' environment (simply 'singlespace' alias currently) for each 'attributionList' \item
+% 	+ Added optional command to insert unsigned version of title/signature page PDF instead of generating w/ TeX
+% 	+ Changed \<sub,subsub>section to explicitly include optional ToC title ([#7] of @startsection)
+%   	# optional ToC title was not functional for \subsection & \subsubsection, so these were modified
+%   	# \section w/ no arguments provided desired behavior, but changed it to match \subsection & \subsubsection
+%   	# best if ToCtitle/title need consistent formatting, else no args preferred. 1 mandatory arg should be avoided -> eliminates optional #7 arg
+% 	+ Changed Level 5 heading from \parindent to flushleft (0pt), as Grad School instructed
+% 	+ Added thesisAppendixPage as prehook to 'appendices' environment
+% 	+ Added automatic Appendix vs. Appendices handling (as per guidelines)
+%   	# Records Appendix chapter count in .aux, so requires 2 compiles to take effect (added 2 useful .aux writing commands to assist).
+%   	# Appendix page displays Appendix or Appendices depending on numAppendices
+%   	# ToC entries adjusted for singular Appendix case (i.e. numAppendices=1):
+%       	-#- Arabic 'A' dropped from Chapter heading, ToC title, & subsequent Appendix/ToC numbering
+%       	-#- "APPENDIX" removed from \chapter ToC title
+%       	-#- \section and lower levels all moved 1 ToC level down
+%       	-#- renewed \<sub,subsub>section commands w/ explicit optional+normal parameter helpful for removing undesired spacing w/o non-functional /cft commands
+% 	+ Added enforcement of no page break mid citation, regardless of # of lines (as instructed by Baylor)
+% 	+ Adjusted figure/table spacing to match guidelines more closely
+% 	+ Modified 'subappendices' environment to match Chapter level appendices with format guidelines
+%   	# Available if necessary, but highly discouraged by Baylor. If used, be prepared to defend use and possibly compromise on formatting.
+% 	+ Replaced 'center' environments with \begingroup\centering...\endgroup when 'center' prevented exact heading position w/ \vspace* (e.g. Abstract)
+% 	+ Added storage of \chapter & \section titles (\curr<Chap,Sec>Titles for later access to this text
+% 	+ Added a number of package requirements and various useful control sequence and math operator definitions.
+% 	+ Modified the \Xname defs to normal capitalization and created \XToCtitle & \Xheading that \MakeUppercase the \Xname's, where X=abstract/appendix/etc.
+%   - Not strictly necessary, but provides flexibility for future changes and improves logic/readability
+% 	+ Replaced braced groups with \begingroup ...\endgroup. No impact, just easier to see/read explicit grouping
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2023
+%-------------------------------------------------------------------------------------------------------------------------------%
+%	# This 2023 changelog entry summarizes several separate commits, the most recent of which represents sweeping changes:
+%		- systematically eliminated many of the "hacks" accumulated over the years
+%		- IDENTIFIED & REMOVED the "hacks" that specifically prevented unrestricted use of 'tocloft' package features 
+%		+ REPLACED many of the hard-coded spacing/indentation parameters with control sequences
+%		+ DEFINED user controls that can be used to change the newly defined spacing/indentation & formatting control sequences 
+%		  via simple macros without directly modifying the underlying .cls file, a process that remains ongoing
+%		+ EXPANDED on the internal documentation, grouping of control sequences with related contexts, and IMPROVED the general
+%		  structure & methods of imposing the partititioning of related methods
+%		+ REDESIGNED and PARAMETERIZED the construction of vertical spacing between the top of a page and its heading. ALL
+%		  FRONTMATTER/MAINMATTER/BACKMATTER headings now begin at the desired distance from the top of the page (within 0.25-0.5pt)  
+%		+ ADAPTED a "control sequence renewal" scheme, used in the context of the APPENDIX/APPENDICES to condense/simplify the 
+%		  redefinitions of document sectioning commands, to permit definitions in the .cls file to be ordered/organized in a more 
+%		  flexible, convenient, & consistent manner. Definitions that cannot appear in the desired location in the file due to 
+%		  dependencies it has that are unsatisfied can simply be encapsulated within a \def & then at a point later in the file 
+%     	  when ALL dependencies have been fulfilled, this \def can be expanded so that the definitions it contains are also expanded... 
+%		  thereby defining them here instead (e.g. placing encapsulations at/near the end of the .cls file is likely ideal)
+% 	+ MODIFIED ToC page & item list format (entry spacing, labels + numbering):
+%		+ CHANGED the <level> of \<sub, subsub>section ToC list items from {1,2,3} to {3,4,5} to match Baylor Formatting 
+%		  Guidelines terminology. This also required that \tocdepth & \secnumdepth be increased by 2 <levels> as well to retain
+%		  the expected ToC behavior
+%       + MODIFIED chapter ToC list items to span 2 lines
+%       + 1st line: ADDED "CHAPTER" before each chapter # and changed the arabic numbering to the English words for each arabic numeral
+%       + 2nd line: SET such that chapter title line is indendeted from the 1st line, w/ numbering suppressed 
+%		- REMOVED the ToC item numbering associated with ToC Levels 3 to 5 list items, which are now \section (3) to \subsubsection (5) 
+%		- REDUCED the separation between frontmatter page & chapter ToC list items, ~1/2 this for Level 3-5 ToC list items
+% 	+ MODIFIED LoF and LoT pages:
+%       + PREPENDED the word "Figure " and "Table " to the LoF and LoT entry numberline (snum), respectively.
+%       - REDUCED horizontal gap between Figure/Table # and subsequent [<short caption>] or {<full caption>} to a single space character
+%       - REMOVED extra vertical space separating groups of Figures/Tables from different chapters
+% 	+ MODIFIED Appendix/Appendices to have the same heading and ToC title behavior as the updated CHAPTER ToC list item formatting
+% 	+ MODIFIED Subappendix/Subappendices enntries in the ToC item list w/ similar formatting as CHAPTER ToC items:
+% 	+ ADDED support for the usage of starred variants \<sub, subsub>section* in the main document body; unlike the DEFAULT
+%	  'report' class definitions, these will "gobble" the optional [<alt.heading=short title>] argument.
+%

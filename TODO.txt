@@ -1,0 +1,38 @@
+%===============================================================================================================================%
+% TODO:
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2021
+%-------------------------------------------------------------------------------------------------------------------------------%
+% + Replace in/ex/em spacing with \baselineskip in most vertical spacing contexts.
+%   - Double/triple space is \baselineskip/1.5\baselineskip within \doublespacing and 2\bqaselineskip/3\baselineship within \singlespacing.
+%   - em is pretty close to \baselineskip in \singlespacing, so the difference is often unnoticeable unless it's measured.
+%   - even when the difference is small, most spacing can be generated with logical factors of \baselineskip (i.e. 0.5, 1.0, 1.5...), which makes the spacing
+%     easier to understand and modify if necessary
+% + Replace 'center' environments with \begingroup\centering...\par\pendgroup in places where vertical spacing needs to be controlled precisely.
+% + Remove need for fancyhdr so tocloft can be used to its full potential, rather than under its current restrictions
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Blake, 2023
+%-------------------------------------------------------------------------------------------------------------------------------%
+% + explore replacing various ToC/Prologue "hacks" with \cftX etc. commands that were previously ineffectual due to conflicts between
+%   the 'fancyhdr' package; 'fancyhdr' was updated in 2022 and it appears that AT LEAST SOME of the previous conflicts with 'tocloft'
+%   no longer exist. Too early to say, and the documentation doesn't mention, if this now holds true for ALL 'tocloft' macros, but
+%   maintaining the .cls file would be far easier if ToC formatting changes for new Grad Guidelines were easier and more intuitive
+% + parameterize the many hard-coded lengths in V/H spacing commands, wherever reasonable, so such spacing can be controlled from
+%   external length parameters rather changing them everywhere by hand each time a spacing change needs to be made
+% + create a 'Dissertation-config.tex' file with simple external macros that redefine the corresponding internal macros which
+%   defines the value of some pertinent parameter e.g. spacing/indentation, text/names, true/false , etc. This would allow for
+%   much simpler changes by users of the .cls and, ideally, reduce the amount of maintenance required to update the .cls to new
+%   grad guidelines.
+% + add parameter list descriptions for important macros, particularly 'Report' class derived sectioning commands, would drastically
+%   ease maintenance. Decoding macro parameters is time consuming and easily forgotten before the next maintenance. As an example:
+%      - \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}*[<altheading>]{<heading>}
+% + there is far too much repeated code, which would be much easier to manage if encapsulated in macros. This would also make
+%   the code much shorter and more readable. The priority in 2021/2023 was making it work, but this needs to be cleaned up ASAP
+% + fix 'sunappendices' so that the word "APPENDIX" doesn't appear prepended to the title of each of its \<sub>section in the ToC
+% + add support for the usage of starred variants \<sub, subsub>section* in the APPENDIX/APPENDICES (main body usage is now supported)
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Ha, 2023
+%-------------------------------------------------------------------------------------------------------------------------------%
+% + Changed Level 5 heading back to \parindent as per 2023 guidelines (which it had been prior to 2021 guidelines)
+%-------------------------------------------------------------------------------------------------------------------------------%
