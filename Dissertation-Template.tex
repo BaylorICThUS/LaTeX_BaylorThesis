@@ -33,7 +33,8 @@
 % If you acquired signatures on a separate PDF, uncomment this line and change the PDF title as needed
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\insertSignaturePage{./SignaturesPage.pdf}
-
+\makeListOfFigures
+\makeListOfTables
 %_______________________________________________________________________________________________________________________________%
 %*******************************************************************************************************************************%
 %===============================================================================================================================%
@@ -45,22 +46,8 @@
 \begin{document}
 	
 \include{C1-Intro}
-	\begin{figure}
-	  \centering
-	  \includegraphics[width=4cm]{Space_Carving_1.png}
-	  \caption{Hello DDA figure caption }\label{fig:DDA}
-	\end{figure}
-	\begin{figure}
-	  \centering
-	  \includegraphics[width=4cm]{Space_Carving_2.png}
-	  \caption{Hello DDA figure caption}\label{fig:DDA}
-	\end{figure}
+\include{Cn-MultiFigs}
 \include{C2-HistoricalReview}
-	\begin{figure}
-	  \centering
-	  \includegraphics[width=4cm]{DDA.png}
-	  \caption{Hello DDA figure caption}\label{fig:DDA}
-	\end{figure}
 %------------------------------------------------------------------------------------------------------------------------------%
 \include{C3-Methods}
 

@@ -62,7 +62,7 @@
 % ##-------- Title/Signature page contruction
 % ##-------- Copyright page contruction
 % ##-------- Table of Contents (ToC): settings & configurations
-% ##-------- List of X (LoX) page constructions: X = Figures (LoF), Tables (LoT)
+% ##-------- List of Z (LoZ) page constructions: Z = figures (LoF), tables (LoT)
 % ##-------- Acknowledgments page construction (heading at 1.5") [optional]
 % ##-------- Dedication page construction (heading at 3.0") [optional]
 % ##-------- Attributions page construction (heading at 1.5") [if applicable] - Blake added, 2021
@@ -98,6 +98,32 @@
 \ProcessOptions
 %_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
+%------------------------------------------ ADMIN level controls (=>) OPAQUE to USER -------------------------------------------%
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Disallow groups of control sequences directly using \undef
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newcommand\ADMIN@disallow@subappendices{%
+    \AtBeginDocument{%
+        \undef\subappendix
+        \undef\subappendices
+        \undef\endsubappendices
+    }
+}%\ADMIN@disallow@subappendices                                                 % immediately EXPAND after DEFINE to add disallowances to \AtBeginDocument stack
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Disallow CSV list of control sequences
+%-------------------------------------------------------------------------------------------------------------------------------%
+\def\ADMIN@disallow@thecsvlist{subappendix,subappendices, endsubappendices}
+\newcommand\ADMIN@disallow@csvlist{%
+    \AtBeginDocument{%
+        \@for\@csv@item:=\ADMIN@disallow@thecsvlist%
+        \do{%
+            \expandafter\csundef\expandafter{\@csv@item}%
+        }%
+    }
+}%\ADMIN@disallow@thecsvlist                                                     % immediately EXPAND after DEFINE to add disallowances to \AtBeginDocument stack
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
 %------------------------------------------------ Register Variable Allocations ------------------------------------------------%
 %===============================================================================================================================%
 \newcounter{savedsection}                                                       % Counter used to record \c@section value before \subappendix
@@ -118,7 +144,6 @@
 %===============================================================================================================================%
 %------------------------------------ Basic LaTeX page layout control & formatting/settings ------------------------------------%
 %===============================================================================================================================%
-%-------------------------------------------------------------------------------------------------------------------------------%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Basic register variable declaration & initialization
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -186,61 +211,6 @@
 %===============================================================================================================================%
 %-------------------------------------------- General Document Wide Package Loading --------------------------------------------%
 %===============================================================================================================================%
-%-------------------------------------------------------------------------------------------------------------------------------%
-%   # Provides driver-independent tint/shade/etc. additions to 'color' package.
-%   # Called here to prevent subsequent option clashes
-%-------------------------------------------------------------------------------------------------------------------------------%
-\RequirePackage[%                                                               % Provides extensive color tables, primitive definitions, & color controls
-    svgnames,table,dvipsnames,usenames,x11names,fixpdftex,hyperref              % [optional] package options & additional color packs
-]{xcolor}
-%-------------------------------------------------------------------------------------------------------------------------------%
-\RequirePackage{setspace}                                                       % Provides 'singlespace' & 'doublespace' environments & the ungrouped \singlespacing & \doublespacing control sequences
-%===============================================================================================================================%
-%----------------------------------------------- Float Environments & Formatting -----------------------------------------------%
-%===============================================================================================================================%
-\RequirePackage{caption}                                                        % Provides many customizations of floating environment (e.g. figure/table) captions
-%-------------------------------------------------------------------------------------------------------------------------------%
-% Set the global caption label separator and spacing for all floats
-%-------------------------------------------------------------------------------------------------------------------------------%
-%   # UNKNOWN CS CONTRIBUTOR & YEAR: This is confusing because the caption is at the top. - THERE HAS TO BE A BETTER WAY JIM
-%   # aboveskip = distance between caption and float
-%   # belowskip = distace between caption and text
-%-------------------------------------------------------------------------------------------------------------------------------%
-\captionsetup{labelsep=colon,font=singlespacing}                                % Global caption formatting options
-%-------------------------------------------------------------------------------------------------------------------------------%
-% Figure caption customizations
-%-------------------------------------------------------------------------------------------------------------------------------%
-%   # Blake, 2021:  Was > triple spaced between figure and caption (called legend in Guidelines)
-%   # Spacing between a Figure & a Table, w/ no intervening text, is doubled up, which helps discern between them but isn't
-%     addressed in the guidelines and was not asked to change it.
-%-------------------------------------------------------------------------------------------------------------------------------%
-%\captionsetup[figure]{belowskip=2em, aboveskip=2em}                            % Previous (replaced) fig skip values
-\captionsetup[figure]{                                                          % Blake, 2021: new fig skip values
-    labelformat=simple,
-    belowskip=-1em,
-    aboveskip=1em
-}
-%-------------------------------------------------------------------------------------------------------------------------------%
-% Table caption customizations
-%-------------------------------------------------------------------------------------------------------------------------------%
-\captionsetup[table]{
-    labelformat=simple,
-    belowskip=0em,
-    aboveskip=1em,
-    justification=centering
-}
-%-------------------------------------------------------------------------------------------------------------------------------%
-% Vertical spacing between floats/captions & surrounding text
-%-------------------------------------------------------------------------------------------------------------------------------%
-%   # UNKNOWN CS CONTRIBUTOR/YEAR: because we set this which determines the distance between the table and the preeceeding / proceeding
-%     text, we HAVE to set the belowskip in the thing above to 0
-%   # UNKNOWN CS CONTRIBUTOR/YEAR: This is also applicable for the images and pictures. Fortunately, the configuration for both
-%     are the same. If they're not, then we're in big barney
-%-------------------------------------------------------------------------------------------------------------------------------%
-\setlength{\intextsep}{2em}                                                     % Vertical space for floats in the middle of the page
-\setlength{\textfloatsep}{3.0em}                                                % Vertical space for floats at the top of the page
-\setlength{\abovecaptionskip}{2em}
-%\setlength{\belowcaptionskip}{-0.01em}
 %_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
 %-------------------------------------------------- Basic + Crucial packages ---------------------------------------------------%
@@ -254,6 +224,13 @@
 %   + Blake, 2023: PROMOTED loading of 'xstring' package from the optional packages (near bottom) to a Basic/Crucial package. It
 %     provides a number of indispensable primitives for managing text strings but has minimal impact of existing TeX control
 %     sequences, so it is deemed as unlikely to "clash" with other crucial packages (experience suggests this is accurate)
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+\RequirePackage[%                                                               % Provides extensive color tables, primitive definitions, color controls, & driver-independent tint/shade/etc. additions to 'color' package
+    svgnames,table,dvipsnames,usenames,x11names,fixpdftex,hyperref              % [optional] package options & additional color packs
+]{xcolor}                                                                       % Called here to prevent subsequent option clashes
+%-------------------------------------------------------------------------------------------------------------------------------%
+\RequirePackage{setspace}                                                       % Provides 'singlespace' & 'doublespace' environments & the ungrouped \singlespacing & \doublespacing control sequences
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\RequirePackage{chicago}                                                       % REMOVED
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -340,10 +317,11 @@
 %   + Blake, 2023: Added conditionals for controlling whether the frontmatter/backmatter (1) headings and (2) ToC labels are
 %     printed directly from their name definitions (\X..Xname) or first passed through \MakeUppercase so the names are printed
 %     entirely "UPPERCASE". Headings and ToC labels are made distinct, adding flexibility to control these independently (if needed)
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
-\def\listXFontStyle{\normalfont\normalsize}                                     % Default font style for ToC/LoF/LoT headings, labels, and list items/titles
-\def\XheadingFontStyle{\normalfont\normalsize}                                  % Default font style for page headings
-\def\XtextFontStyle{\normalfont\normalsize}                                     % Default font style for text content
+\def\listXFontStyle{\normalsize\normalfont}                                     % Default font style for ToC/LoF/LoT headings, labels, and list items/titles
+\def\XheadingFontStyle{\normalsize\normalfont}                                  % Default font style for page headings
+\def\XtextFontStyle{\normalsize\normalfont}                                     % Default font style for text content
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Frontmatter/mainmatter/backmatter "page heading" font case control
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -375,6 +353,7 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 %   + Blake, 2023: ADDED this lookup table to manage control sequences associated with these document components
 %   + Blake, 2023: promoted 'xstring' package to "crucial" to enable access to its \IfStrEqCase control sequence
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand\lookup@page@cs@basename[1]{%
     \IfStrEqCase{#1}{
@@ -448,7 +427,7 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Set the ToC entry titles of frontmatter/backmatter and \chapter "pages"
 %-------------------------------------------------------------------------------------------------------------------------------%
-\newcommand*{\abstractToClabel}{\ToClabelFontCase{\abstractname}}
+\newcommand*{\abstractToCtitle}{\ToClabelFontCase{\abstractname}}
 \newcommand*{\cftToClabel}{\ToClabelFontCase{\ToCname}}
 \newcommand*{\cftLoFlabel}{\ToClabelFontCase{\LoFname}}
 \newcommand*{\cftLoTlabel}{\ToClabelFontCase{\LoTname}}
@@ -626,6 +605,7 @@
 %   + Blake, 2023: ENCAPSULATED the \Xmark command renewals & delay expansion until beginning of doc; 'fancyhdr' package is now
 %     loaded BELOW this point and overwrites \Xmark definitions. Rather than move these back below 'fancyhdr' load, they are
 %     encapsulated within a simple \def, which can then be expanded at some point later (e.g. beginning of \Document=\AtBeginDocument)
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand*\currChapTitle{}                                                    % Stores current chapter title
 \newcommand*\currSecTitle{}                                                     % Stores current section title
@@ -721,7 +701,7 @@
         \fi
 %**************************** MANUAL ToC H-SPACING HACK ************************************************************************************
         \addcontentsline{toc}{chapter}{%                                        % Blake, 2023: Indent 2nd ToC line and print ONLY the chapter title (no numbering)
-                \protect\hskip\cftindent@between@chaplines\rm#1%
+                \protect\hskip\cftindent@chapLineTwo\rm#1%
         }%
 		%\addcontentsline{toc}{chapter}{\protect\numberline{\rm\thechapter}\rm#1}
 	\else
@@ -812,6 +792,7 @@
 %   + Blake, 2021: REVERTED the \section command from 1 to 2 parameters, where optional [#1] provides a "short title" ToC entry option
 %   + Blake, 2023: ADDED/CHANGED the definition of the \section* variant, which did not function properly
 %   + Blake, 2023: CHANGED <level> of \subsection from 1 to 3 to match w/ Baylor Formatting Guidelines concept of "Level"
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\section}[2][]
 {%  USAGE: \section[<alt-heading=short ToC title>]{<heading>}
@@ -859,17 +840,18 @@
 %   + Blake, 2021: REVERTED the \subsection command from 1 to 2 parameters, where optional [#1] provides a "short title" ToC entry option
 %   + Blake, 2023: ADDED/CHANGED the definition of the \subsection* variant, which did not function properly
 %   + Blake, 2023: CHANGED <level> of \subsection from 2 to 4 to match w/ Baylor Formatting Guidelines concept of "Level"
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\subsection}[2][]
 {%  USAGE: \subsection[<alt-heading=short ToC title>]{<heading>}
-    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
+    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}%
     % USAGE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}<*>
     \@startsection%
     % USAGE: \@sect{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}[<altheading>]{<heading>}
-    {subsection}{4}{0pt}                                                        % expanded immediately by \@startsection and passed directly to \@sect
-    {0.001ex}{0.001ex}{\vspace{1em}\normalfont\slshape\normalsize}              % expanded immediately by \@startsection and passed directly to \@sect
+    {subsection}{4}{0pt}%                                                       % expanded immediately by \@startsection and passed directly to \@sect
+    {0.001ex}{0.001ex}{\vspace{1em}\normalsize\normalfont\slshape}%             % expanded immediately by \@startsection and passed directly to \@sect
     %[<alt-heading=short ToC title>]{<heading>}                                 <- \subsection[<alt-heading=short ToC title>]{<heading>}
-    [\ToCentry]{#2}                                                             % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
+    [\ToCentry]{#2}%                                                            % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
     %[\hspace{-\parindent}\ToCentry]{#2}                                        % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -888,7 +870,7 @@
     \@startsection%
     {subsection}{4}{0pt}%                                                       % expanded immediately by \@startsection but NOT passed to \@ssect
     %USAGE: \@ssect{<indent>}{<beforeskip>}{<afterskip>}{<style>{<heading>}
-    {0.001ex}{0.001ex}{\vspace{1em}\normalfont\slshape\normalsize}*%            % expanded immediately by \@startsection and passed directly to \@ssect since \@ifstar = true
+    {0.001ex}{0.001ex}{\vspace{1em}\normalsize\normalfont\slshape}*%            % expanded immediately by \@startsection and passed directly to \@ssect since \@ifstar = true
     %{<heading>}                                                                <- \subsection*[<alt-heading=short ToC title>]{<heading>}
     {#2}                                                                        % unexpanded by \@startsection, only expanded by \@ssect inside \@startsection macro
 }
@@ -906,13 +888,13 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand{\subsubsection}[2][]
 {%  USAGE: \subsubsection[<alt-heading=short ToC title>]{<heading>}
-    \vspace{1em}                                                                % Blake, 2023: [is this really needed?]
-    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}
+    \vspace{1em}%                                                                % Blake, 2023: [is this really needed?]
+    \ifstrempty{#1}{\def\ToCentry{#2}}{\def\ToCentry{#1}}%
     % USAGE: \@startsection{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}<*>
     \@startsection%
     % USAGE: \@sect{<name>}{<level>}{<indent>}{<beforeskip>}{<afterskip>}{<style>}[<altheading>]{<heading>}
     {subsubsection}{5}%                                                         % expanded immediately by \@startsection and passed directly to \@sect
-    {\parindent}{0.001em}{-1em}{\normalfont\slshape\normalsize}%                % expanded immediately by \@startsection and passed directly to \@sect
+    {\parindent}{0.001em}{-1em}{\normalsize\normalfont\slshape}%                % expanded immediately by \@startsection and passed directly to \@sect
     %[<alt-heading=short ToC title>]{<heading>}                                 <- \subsubsection[<alt-heading=short ToC title>]{<heading>}
     [\ToCentry]{#2}%                                                            % unexpanded by \@startsection, only expanded by the \@sect inside \@startsection macro
     {\hspace{-2ex}.}%                                                           % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
@@ -939,6 +921,169 @@
     %{<heading>}                                                                <- \subsubsection*[<alt-heading=short ToC title>]{<heading>}
     {#2}%                                                                       % unexpanded by \@startsection, only expanded by \@ssect inside \@startsection macro
     {\hspace{-2ex}.}%                                                           % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
+}
+%_______________________________________________________________________________________________________________________________%
+%*******************************************************************************************************************************%
+%===============================================================================================================================%
+%--------------------------------------------------------- MAINMATTER ----------------------------------------------------------%
+%-------------------------------------------------------------------------------------------------------------------------------%
+%------------------------- Float Environments: placement, labeling/formatting, & LoZ list item control -------------------------%
+%===============================================================================================================================%
+%*******************************************************************************************************************************%
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
+%----------------------------------------------- Float Environments & Formatting -----------------------------------------------%
+%===============================================================================================================================%
+\RequirePackage{caption}                                                        % Provides many customizations of floating environment (e.g. figure/table) captions
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Set the global caption label separator and spacing for all floats
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   # UNKNOWN CS CONTRIBUTOR & YEAR: This is confusing because the caption is at the top. - THERE HAS TO BE A BETTER WAY JIM
+%   # aboveskip = distance between caption and float
+%   # belowskip = distace between caption and text
+%-------------------------------------------------------------------------------------------------------------------------------%
+\captionsetup{labelsep=colon,font=singlespacing}                                % Global caption formatting options
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Figure caption customizations
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   # Blake, 2021:  Was > triple spaced between figure and caption (called legend in Guidelines)
+%   # Spacing between a Figure & a Table, w/ no intervening text, is doubled up, which helps discern between them but isn't
+%     addressed in the guidelines and was not asked to change it.
+%-------------------------------------------------------------------------------------------------------------------------------%
+%\captionsetup[figure]{belowskip=2em, aboveskip=2em}                            % Previous (replaced) fig skip values
+\captionsetup[figure]{                                                          % Blake, 2021: new fig skip values
+    labelformat=simple,
+    belowskip=-1em,
+    aboveskip=1em
+}
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Table caption customizations
+%-------------------------------------------------------------------------------------------------------------------------------%
+\captionsetup[table]{
+    labelformat=simple,
+    belowskip=0em,
+    aboveskip=1em,
+    justification=centering
+}
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Vertical spacing between floats/captions & surrounding text
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   # UNKNOWN CS CONTRIBUTOR/YEAR: because we set this which determines the distance between the table and the preeceeding / proceeding
+%     text, we HAVE to set the belowskip in the thing above to 0
+%   # UNKNOWN CS CONTRIBUTOR/YEAR: This is also applicable for the images and pictures. Fortunately, the configuration for both
+%     are the same. If they're not, then we're in big barney
+%-------------------------------------------------------------------------------------------------------------------------------%
+\setlength{\intextsep}{2em}                                                     % Vertical space for floats in the middle of the page
+\setlength{\textfloatsep}{3.0em}                                                % Vertical space for floats at the top of the page
+\setlength{\abovecaptionskip}{2em}
+%\setlength{\belowcaptionskip}{-0.01em}
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
+%---- Redefine format of \caption[]{} items written to \listofYs ONLY for specific float environments Y={figure, table,...} ----%
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Naming: (X:Y:Z)={fig:figure:F,tab:table:T)<=>(\_X_:\listofYs:LoZ)={\_fig_:\listoffigures:LoF,\_tab_:\listoftables:LoT,...}
+%   # NOTE: \_X_ is often \cft_X_ either from 'tocloft' directly OR defined/derived in <this>.cls for use w/ 'tocloft' behaviors
+%-------------------------------------------------------------------------------------------------------------------------------%
+% LoZ item title = <title> IF USING \caption{<title>} OR title = <short title> IF USING \caption[<short title>]{<title>}
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   + Blake, 2023: EXTENDED 'caption' package such that the \caption[]{} content written to LoZ supports adding the requried
+%     prefix labels "Figure " & "Table " before item refnums \theY for SPECIFIC float environments Y={figure, table}.
+%     Functionality also includes 'Aligned' & 'Constsep' LoZ item numbering/title separation options && adapts to cases where \theY= C.N (C:=chapter #) for N>=10->N=[nn] yields a 1 digit
+%     wider C.nn. NOTE: could be extended to support other float environments e.g. subfigure, subtable, wrapfigure.
+%       + ADDED redefintion of 'caption' package control sequence that writes items to \listofYs files
+%           + ADDED specific behavior for Y={figure, table} floats; all other floats retain DEFAULT behavior from 'caption'
+%           + REDEFINED prefix label names to \p@Y={\Yname\space}
+%           + ADDED prefix label names \p@Y={"Figure ", "Table "} before Y={figure,table} refnums in the LoZ={LoF, LoT}
+%           + DEFINED new lengths \len@p@Y & set these to width of the \cftXfont\p@Y label added before LoZ item numbering
+%           + DEFINED new CONST DEFAULT lengths \default@cftXnumwidth to replace usage of VAR lengths \cftXnumwidth
+%           + SUBTRACTED \default@cftXnumwidth from \len@p@Y, yielding \hskip required for \cftXfont\p@Y\numberline{\theY}
+%           + ADJUSTED LoZ item indents/numberline widths using \cftsetindents{Y}{<indent>=0.0in}{<width>=\len@p@Y}
+%===============================================================================================================================%
+%_______________________________________________________________________________________________________________________________%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Add SPECIFIC \caption[<short title>]{<title>} behaviors for writing LoZ items to \listofYs when {Y:Z}={figure:F,table:T,...}
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   # NOTE: DEFAULT \caption[<short title>]{<title>} is retained FOR ALL OTHER float environments NOT(Y)=NOT({figure, table, ...})
+%   # This can be extended to define specific \caption[<short title>]{<title>} behaviors for ADDITIONAL float environments Y
+%       # Potential ADDITIONAL float environments are Y={subfigure, wrapfigure, longtable, etc.}
+%-------------------------------------------------------------------------------------------------------------------------------%
+\renewcommand*\caption@@@addcontentsline[4]{%
+    \IfStrEqCase{#2}%
+    {%
+        {figure}{\figcaption@@@addcontentsline{#1}{#2}{#3}{#4}}                 % Use the specific LoZ item writing behavior of \caption[]{} defined for (X:Y:Z)={fig:figure:F}
+        {table}{\tabcaption@@@addcontentsline{#1}{#2}{#3}{#4}}                  % Use the specific LoZ item writing behavior of \caption[]{} defined for (X:Y:Z)={tab:table:T}
+    }[\addcontentsline{#1}{#2}{\protect\numberline{#3}{#4}}]%                   % DEFAULT: Use the original LoZ item writing behavior of \caption[]{} defined by \newcommand*\caption@@@addcontentsline in 'caption' package
+}
+%===============================================================================================================================%
+%- Add SPECIFIC \caption[<short title>]{<title>} behaviors for writing LoZ items to \listofYs when {Y:Z}={figure:F,table:T,...}-%
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Redefine \p@figure to desired prefix label before LoF item refnums C.N & define/init LoF item spacing/indentation parameters
+%-------------------------------------------------------------------------------------------------------------------------------%
+\renewcommand\p@figure{\figurename\space}                                       % ADD prefix label "Figure " before LoF item refnums C.N -> "Figure C.N"
+\newlength\default@cftfignumwidth                                               % DECLARE new FIXED DEFAULT length \default@cftfignumwidth to use instead of UNFIXED \cftfignumwidth (e.g. \cftfignumwidth=<numwidth> <- \setindents{figure}{<indent>}{<numwidth>})
+\setlength\default@cftfignumwidth{1.8em}                                        % SET new FIXED DEFAULT length \default@cftfignumwidth (DEFAULT: \cftfignumwidth=2.3em)
+\newlength\len@p@figure                                                         % DECLARE new length to store desired "hbox" width w/ additional content \cftfigfont\p@figure preceding 'snum'
+\settowidth\len@p@figure{\cftfigfont\p@figure}                                  % SET new length to the width of \cftfigfont\p@figure, where \cftfigfont renders \p@figure w/ the font styling applied to the LoF items
+\addtolength\len@p@figure{-\default@cftfignumwidth}                             % ADD width of figure number box, yielding total width = \p@figure + \cftfignumwidth
+\newcommand\cftfig@snum@titlesep{\space}                                        % DEFINES the desired separator between the LoF item label/numbering & title (DEFAULT: \space)
+%_______________________________________________________________________________________________________________________________%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Define the SPECIFIC LoZ item writing behavior of \caption[]{} for (X:Y:Z)={fig:figure:F}
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   + Blake, 2023: MOVED the \addcontentsline{#1}{#2}{\protect\p@figure\numberline{#3} common to nested IFs outside the IF
+%     hierarchy so it only appears ONCE & nested IFs ONLY control the content following this common code (MUCH shorter code too)
+%   # NOTE: "Figure " refers to the CLASS DEFAULT \p@figure="Figure " & is used instead of \p@figure for demonstration purposes
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newcommand*\figcaption@@@addcontentsline[4]{%
+    \addcontentsline{#1}{#2}{\protect\p@figure\numberline{#3}%                  % This portion of \addcontentsline call is common in ALL nested IFs
+        \if@force@const@LoZ@titlesep                                            % IF \@force@const@LoZ@titleseptrue THEN require constant LoF item refnum/title separation
+            \ifnum\value{figure} < 10                                           % IF figure refnum N<10 in current Chapter C (i.e. IF N<10 -> N:=[n] in "Figure C.n"
+                \cftfig@snum@titlesep{#4}%                                      % THEN (=>) ADD ONLY the title separator \cftfig@snum@titlesep before LoF item title = <title> OR <short title>
+            \else                                                               % ELSE (=>) WHEN(N<10 -> N:=[n])
+                {\hskip\DBLdigit@refnum@skip}%                                  % ADD \hskip\DBLdigit@refnum@skip to make room for extra digit n in "Figure C.nn"
+                \cftfig@snum@titlesep{#4}%                                      % ADD desired title separator \cftfig@snum@titlesep
+            \fi
+        \else                                                                   % ELSE (=>) WHEN(\@force@const@LoZ@titlesepfalse <=> align LoF item titles)
+            {\hskip\LoZnumline@padskip}%                                        % ADD \hskip\LoZnumline@padskip to shift LoF item title right by approx. width of 1 digit n to make room for "Figure C.nn" WHEN(N>=10 -> N:=[nn])
+            \cftfig@snum@titlesep{#4}%                                          % ADD desired title separator \cftfig@snum@titlesep yielding LoF item numbering/title separation -> WHEN( N<10 -> N:=[n] || N>=10 -> N:=[nn]) (=>) (\cftfig@snum@titlesep + \hskip\LoZnumline@padskip || \cftfig@snum@titlesep)
+        \fi
+    }%                                                                          % CLOSE ON ARG#3 of \addcontentsline (MATCHES unconventional OPEN ON ARG#3 usage hidden before \protect)
+}
+%_______________________________________________________________________________________________________________________________%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Redefine \p@table to desired prefix label before LoT item refnums C.N & define/init LoT item spacing/indentation parameters
+%-------------------------------------------------------------------------------------------------------------------------------%
+\renewcommand\p@table{\tablename\space}                                         % ADD prefix label "Table " before LoT item refnums C.N -> "Table C.N"
+\newlength\default@cfttabnumwidth                                               % DECLARE new FIXED DEFAULT length \default@cfttabnumwidth to use instead of UNFIXED \cfttabnumwidth (e.g. \cfttabnumwidth=<numwidth> <- \setindents{table}{<indent>}{<numwidth>})
+\setlength\default@cfttabnumwidth{1.8em}                                        % SET new FIXED DEFAULT length \default@cfttabnumwidth (DEFAULT: \cfttabnumwidth=2.3em)
+\newlength\len@p@table                                                          % DECLARE new length to store desired "hbox" width w/ additional content \cfttabfont\p@table preceding 'snum'
+\settowidth\len@p@table{\cfttabfont\p@table}                                    % SET new length to the width of \cfttabfont\p@table, where \cfttabfont renders \p@table w/ the font styling applied to the LoT items
+\addtolength\len@p@table{-\default@cfttabnumwidth}                              % ADD width of table number box, yielding total width = \p@table + \cfttabnumwidth
+\newcommand\cfttab@snum@titlesep{\space}                                        % DEFINES the desired separator between the LoT item label/numbering & title (DEFAULT: \space)
+%_______________________________________________________________________________________________________________________________%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Define the SPECIFIC LoZ item writing behavior of \caption[]{} for (X:Y:Z)={tab:table:T}
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   + Blake, 2023: MOVED the \addcontentsline{#1}{#2}{\protect\p@table\numberline{#3} common to nested IFs outside the IF
+%     hierarchy so it only appears ONCE & nested IFs ONLY control the content following this common code (MUCH shorter code too)
+%   # NOTE: "Table " refers to the CLASS DEFAULT \p@table="Table " & is used instead of \p@table for demonstration purposes
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newcommand*\tabcaption@@@addcontentsline[4]{% COMMENTS ASSUME (CASE:\p@table="Table ")
+    \addcontentsline{#1}{#2}{\protect\p@table\numberline{#3}%                   % This portion of \addcontentsline call is common in ALL nested IFs
+        \if@force@const@LoZ@titlesep                                            % IF \@force@const@LoZ@titleseptrue THEN require constant LoT item refnum/title separation
+            \ifnum\value{table} < 10                                            % IF table refnum N<10 in current Chapter C (i.e. IF N<10 -> N:=[n] in "Table C.n"
+                \cfttab@snum@titlesep{#4}%                                      % THEN (=>) ADD ONLY the title separator \cfttab@snum@titlesep before LoT item title = <title> OR <short title>
+            \else                                                               % ELSE (=>) WHEN(N<10 -> N:=[n])
+                {\hskip\DBLdigit@refnum@skip}%                                  % ADD \hskip\DBLdigit@refnum@skip to make room for extra digit n in "Table C.nn"
+                \cfttab@snum@titlesep{#4}%                                      % ADD desired title separator \cfttab@snum@titlesep
+            \fi
+        \else                                                                   % ELSE (=>) WHEN(\@force@const@LoZ@titlesepfalse <=> align LoT item titles)
+            {\hskip\LoZnumline@padskip}%                                        % ADD \hskip\LoZnumline@padskip to shift LoT item title right by approx. width of 1 digit n to make room for "Table C.nn" WHEN(N>=10 -> N:=[nn])
+            \cfttab@snum@titlesep{#4}%                                          % ADD desired title separator \cfttab@snum@titlesep yielding LoT item numbering/title separation -> WHEN( N<10 -> N:=[n] || N>=10 -> N:=[nn]) (=>) (\cfttab@snum@titlesep + \hskip\LoZnumline@padskip || \cfttab@snum@titlesep)
+        \fi
+    }%                                                                          % CLOSE ON ARG#3 of \addcontentsline (MATCHES unconventional OPEN ON ARG#3 hidden before \protect)
 }
 %_______________________________________________________________________________________________________________________________%
 %*******************************************************************************************************************************%
@@ -986,6 +1131,7 @@
 %===============================================================================================================================%
 %-------------------------------------- Frontmatter (Prologue) page formatting & controls --------------------------------------%
 %===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
 % Page formatting controls: indentation, (effective) top margin, heading & text font shape/style
 %-------------------------------------------------------------------------------------------------------------------------------%
 %_______________________________________________________________________________________________________________________________%
@@ -1112,6 +1258,7 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 %   # Blake, 2021: Replaced "center" environment with grouped \centering justification clause, otherwise interferes with
 %     \vspace* generating heading at the 2.5" mark
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\thesisAbstractpage}
 {%
@@ -1152,8 +1299,8 @@
 %   # Blake, 2023: Packages 'fncychap', 'fancyhdr' ('fancyX' in general) have been known to cause "conflicts"/"clashes" with
 %     other packages & produce unexpected behavior that is frustratingly difficult to diagnose. 'fancyhdr' was updated in 2022
 %     & it appears that some of the clashes it caused, with 'tocloft' in particular, have disappeared yet there is no mention
-%     of this in the release notes; it may have been fixed accidentally or this .cls was changed such that in no longer mattered.
-%     Given that this package is used EXCLUSIVELY for this 1 \fancypagestyle (containing \fancyhf{}), behavior that could be
+%     of this in the release notes; it may have been fixed accidentally or this .cls was changed such that in no longer mattered. 
+%     Given that this package is used EXCLUSIVELY for this 1 \fancypagestyle (containing \fancyhf{}), behavior that could be 
 %     generated by other TeX means, removing this package in favor of any alternative approach should be considered.
 %-------------------------------------------------------------------------------------------------------------------------------%
 \RequirePackage{fancyhdr}
@@ -1191,24 +1338,8 @@
     #1
 }
 %_______________________________________________________________________________________________________________________________%
-%****************************************************** UNDER CONTRUCTION ******************************************************%
-% Blake, 2021: In progress with title page.
-%-------------------------------------------------------------------------------------------------------------------------------%
-%\newcommand*{\thesisSignature}[2]
-%{%  USAGE: \thesisSignature{<text>}{<vrule width>}
-%    normalsize
-%   %\vspace{0.05in}
-%   %\\
-%   \vrule width #2 height 0.1mm\\[0.1mm-2ex]
-%   %[-0.5\baselineskip]
-%   %\vspace{0.5em}
-%   #1
-%}
-%_______________________________________________________________________________________________________________________________%
-%**************************************************** END UNDER CONTRUCTION ****************************************************%
-%_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
-%------------------------------------------------- Title page contruction --------------------------------------------------%
+%--------------------------------------------------- Title page contruction ----------------------------------------------------%
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Title/signature page contruction
@@ -1269,79 +1400,6 @@
         \clearpage
 }
 %_______________________________________________________________________________________________________________________________%
-%****************************************************** UNDER CONTRUCTION ******************************************************%
-% Blake 2021, in progress: correcting margins and positioning/spacing of lines.
-% # Attempting to match Grad School provided "4 Line Signature Page", though it extends into the 1" top and bottom margins and
-%   has inconsistent spacing.
-%-------------------------------------------------------------------------------------------------------------------------------%
-%\newcommand*{\thesisTitlePage}
-%{
-%    \if@insertSignaturePage%
-%        %\include{\signaturePageAddr}
-%        %\include{./Forms/SignaturesPage.pdf}
-%        \includepdf{\signaturePageAddr}
-%    \else
-%    	\thispagestyle{thesisTitlePageStyle}
-%    	\doublespacing	
-%        {
-%            \vspace*{0.5ex -\baselineskip}
-%            \centering
-%        %\begin{center}
-%    	%\vspace*{0.1in}
-%    		\thesisTitle \\[0.5\baselineskip-1.5ex]
-%    		by \\[0.5\baselineskip-1.5ex-0.3mm]
-%    		%by \\[0.5\baselineskip-0.5em - 0.2mm]
-%    		\thesisAuthorName, \thesisHolding \\[-1.5ex - 0.2mm + 0.5\baselineskip]
-%    		A Dissertation \\[-1.em + 0.3mm + 0.5\baselineskip]
-%    		Approved by the \thesisDepartment\\[-0.5em +0.2mm + 0.5\baselineskip]
-%    		\thesisSignature{\thesisDepartmentChair, Chairperson}{4.0in}\\[0.5\baselineskip - 0.2mm]
-%    	%\vspace{0.1in}
-%        	\singlespacing
-%            	Submitted to the Graduate Faculty of\\
-%        	Baylor University in Partial Fulfillment of the \\
-%        	Requirements for the Degree \\
-%        	of \\[-0.5ex + 0.2mm + 0.5\baselineskip]
-%        	\thesisDegree\\[\baselineskip]
-%        }
-%    	\vspace{2\baselineskip}
-%    	%\vfill
-%    	\doublespacing
-%    	%\hspace{0.25in}
-%    	%\setlength\leftskip{0.5in}
-%        {   %
-%            	\centering
-%                %\addtolength{\leftskip}{-2.5in}
-%                Approved by the Dissertation Committee\\
-%         		\thesisSignature{\thesisMentor, Chairperson}{80mm}\\
-%         		\thesisSignature{\thesisReaderOne}{80mm}\\
-%         		\thesisSignature{\thesisReaderTwo}{80mm}\\
-%    		\if@makeReaderThree \thesisSignature{\thesisReaderThree}{80mm}\\ \fi
-%    		\if@makeReaderFour \thesisSignature{\thesisReaderFour}{80mm}\\ \fi
-%    		\if@makeReaderFive \thesisSignature{\thesisReaderFive}{80mm}\\ \fi
-%    		%\\
-%    	}
-%    	
-%    	\vspace{0.25in}
-%    	\vfill	
-%    	%\addtolength{\leftskip}{-1.0in}
-%        %\setlength\leftskip{-1.25in}
-%        {
-%    		%\centering
-%    		\begin{flushleft}
-%                \centering
-%                Accepted by the Graduate School \\
-%        		\vspace{-0.075in}
-%        		\thesisConfDate
-%        		\thesisSignature{\thesisDean, Dean}{80mm} \\
-%            \end{flushleft}
-%    	}	
-%    	%\end{center}
-%    \fi
-%    \clearpage
-%}
-%_______________________________________________________________________________________________________________________________%
-%**************************************************** END UNDER CONTRUCTION ****************************************************%
-%_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
 %------------------------------------------------- Copyright page contruction --------------------------------------------------%
 %===============================================================================================================================%
@@ -1369,29 +1427,13 @@
 %*******************************************************************************************************************************%
 %_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
-% ToC/LoF/LoT settings & configurations (primarily via \cftX______ control sequences provided by 'tocloft' package)
+% General ToC/LoZ list item construction & formatting controls
 %===============================================================================================================================%
-%   # Uses the 'tocloft' package
-%   # NOTE: overflowing chapter titles MUST be single-spaced
 %-------------------------------------------------------------------------------------------------------------------------------%
-\newcommand\addListXgroupsep[2][]{%                                             % Defines global listX applicable control sequence for defining additional ToC item "group" separations (e.g. separation between \chapter ToC list items)
-    % USAGE: \addListXgroupsep[<opt.spacing>]{<ListX name = ancillary file extension>}
-    \ifstrempty{#1}%
-        {\addtocontents{#2}{\protect\addvspace{\cftgroupsep@default}}}          % Add default group separation spacing between groups of ListX items to its ancillary file (e.g. toc, lof, lot)
-        {\addtocontents{#2}{\protect\addvspace{#1}}}                            % Add specified group separation spacing between groups of ListX items to its ancillary file (e.g. toc, lof, lot)
-}
+% DEFINE/SET general parameters common to ToC/LoZ items
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Indentation & vertical spacing controls for ToC list items of <Level=n>
-%-------------------------------------------------------------------------------------------------------------------------------%
-\def\cftindent@between@chaplines{\baselineskip}                                 % Set indentation between 1st and 2nd lines of \chapter ToC list items
-\def\cftindent@between@chap@sec{0.5in}                                          % Set indentation between 1st \chapter line ToC list items and \section ToC list items
-\def\cftindent@between@any@sec{0.25in}                                          % Set common relative indentation for all ToC list levels after <Level 2> chapter title line
-\def\cftindent@between@chaptitle@sec{0.25in}                                    % Set indentation between 2nd \chapter line ToC list items and \section ToC list items
-\def\cftindent@between@sec@ssec{\cftindent@between@chap@sec}                    % Set indentation between 2nd \section line ToC list items and \subsection ToC list items
-\def\cftindent@between@ssec@sssec{\cftindent@between@chap@sec}                  % Set indentation between 2nd \subsection line ToC list items and \subsubsection ToC list items
-\def\cftindent@between@subappendix@seclines{\cftindent@between@any@sec}         % Set indentation between 2nd \subsection line ToC list items and \subsubsection ToC list items
-\def\cftgroupsep@default{8\p@}
-\def\cftparskip@factor{0.75}                                                    % Set the scaling factor of \baselineskip used to define the vertical ToC spacing parameter \cftparskip
+\def\cftgroupsep@default{8\p@}                                                  % DEFINE the DEFAULT vspacing to be added between ToC/LoZ items from different "groups", e.g. between groups of ToC items from different chapters
+\def\cftparskip@factor{0.75}                                                    % DEFINE the scaling factor of \baselineskip used to define the vertical ToC spacing parameter \cftparskip
 \MULTIPLY{\cftparskip@factor}{2}{\cftparskip@dblfactor}                         % Calculate double the \cftparskip@factor for use in defining \cftXbeforeskip for X=part/chapter
 \DIVIDE{\cftparskip@factor}{0.25}{\num@quarter@cftparskips}                     % Calculate the # of multiple 'x' of 0.25 in \cftparskip@factor (used to determine 'x' in mx + b calculation of \cftparskip@correction
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -1406,7 +1448,6 @@
 \newlength\mystery@vshift@yintercept
 \newlength\mystery@vshift@m
 \newlength\cftparskip@correction
-%\newlength\mystery@vshift@discrepancy                                          % discrepant vertical shift in some titles/headings from expected locations - UNKNOWN CAUSE
 %-------------------------------------------------------------------------------------------------------------------------------%
 \let\mystery@vshift@x\num@quarter@cftparskips                                   % Define alias of \num@quarter@cftparskips matching current \mystery@vshift@X naming associated with mx + b calculation context
 \setlength\mystery@vshift@yintercept{-16.325pt}                                 % Sets value of yintercept = 'b' in mx + b calculation of \cftparskip@correction
@@ -1415,6 +1456,42 @@
     \mystery@vshift@x\mystery@vshift@m + \mystery@vshift@yintercept             % <correction> = x * m + b
 }
 %\setlength\mystery@vshift@discrepancy{1.25pt}                                  % discrepant vertical shift in some titles/headings from expected locations - CUNKNOWN CAUSE
+%-------------------------------------------------------------------------------------------------------------------------------%
+% General LoZ item format parameters & control sequences applicable to \listofYs for specific (X:Z)={figure:F, table:T, ...}
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newskip\DBLdigit@refnum@skip\DBLdigit@refnum@skip=0.5em
+\newskip\LoZnumline@padskip\LoZnumline@padskip=\DBLdigit@refnum@skip
+\newif\if@force@const@LoZ@titlesep\@force@const@LoZ@titleseptrue
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newcommand\setLoZtitlesConstsep{\@force@const@LoZ@titleseptrue}
+\newcommand\setLoZtitlesAligned{\@force@const@LoZ@titlesepfalse}
+%\setLoZtitlesConstsep
+\setLoZtitlesAligned
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Define new command to add vertical spacing between ToC/LoZ item groups of type G (OFTEN G=chapter}
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   -/+ Blake, 2023:
+%   - Removed this spacing between groups of Figure/Tables in the LoF/LoT, respectively, from different chapters
+%   - Removed this spacing between ToC chapters in favor of using \cftbeforechapskip and \cftafterchapskip.
+%   + Created this \addListXgroupsep to simplify reintroduction of such spacing to groups of any ListX items
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newcommand\addListXgroupsep[2][]{%                                             % Defines global listX applicable control sequence for defining additional ToC item "group" separations (e.g. separation between \chapter ToC list items)
+    % USAGE: \addListXgroupsep[<opt.spacing>]{<ListX name = ancillary file extension>}
+    \ifstrempty{#1}%
+        {\addtocontents{#2}{\protect\addvspace{\cftgroupsep@default}}}          % Add default group separation spacing between groups of ListX items to its ancillary file (e.g. toc, lof, lot)
+        {\addtocontents{#2}{\protect\addvspace{#1}}}                            % Add specified group separation spacing between groups of ListX items to its ancillary file (e.g. toc, lof, lot)
+}
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
+% ToC/LoF/LoT/LoZ settings & configurations (primarily via \cft__X__ control sequences provided by 'tocloft' package)
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   # Uses the 'tocloft' package
+%   # NOTE: overflowing chapter titles MUST be single-spaced
+%-------------------------------------------------------------------------------------------------------------------------------%
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Define (X:Y)={part:part,chap:chapter} leaders, page # fonts
 %-------------------------------------------------------------------------------------------------------------------------------%
 \renewcommand\cftpartleader{\listXFontStyle\cftdotfill{\cftchapdotsep}}         % Set 'part' leader and leader font formatting DEFAULT: \large\bfseries\cftdotfill{\cftpartdotsep}
 \renewcommand\cftchapleader{\listXFontStyle\cftdotfill{\cftchapdotsep}}         % Set 'chap' leader and leader font formatting DEFAULT: \bfseries\cftdotfill{\cftchapdotsep}
@@ -1435,42 +1512,31 @@
 \setlength\cftbeforesubsecskip{\cftparskip@factor\baselineskip}                 % beforeskip for subsection entry items in the ToC
 \setlength\cftbeforesubsubsecskip{\cftparskip@factor\baselineskip}              % beforeskip for subsubsection entry items in the ToC
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Blake, 2023: Added "Figure " before figure #s in the LoF, then adjusted numberline spacing/location
+% Indentation & vertical spacing controls for ToC list items of <Level=L>
 %-------------------------------------------------------------------------------------------------------------------------------%
-\renewcommand\p@figure{\figurename\space}                                       % ADD "Figure " before figure #s in LoF entries
-%\renewcommand\cftfigpresnum{\figurename\space}                                 % ALTERNATIVE: Add "Figure " before figure #s in LoF entries
-\newlength\len@cftfigpresnum                                                    % Width of content preceding 'snum', i.e. \cftfigpresnum
-\settowidth\len@cftfigpresnum{\cftfigfont\p@figure}                             % SET to the width of \p@figure
-\addtolength\len@cftfigpresnum{\cftfignumwidth}                                 % ADD width of figure number box, yielding total width = \p@figure + \cftfignumwidth
+\def\cftindent@chapLineTwo{0.35in}                                              % DEFINE indentation between 1st and 2nd lines of \chapter ToC 2-line list items
+\def\cftindent@nextLevel{0.175in}                                               % DEFINE common relative indentation for all ToC list levels after <Level 2> chapter title line
 %-------------------------------------------------------------------------------------------------------------------------------%
-% Blake, 2023: Added "Table " before table #s in the LoT, then adjusted numberline spacing/location
-%-------------------------------------------------------------------------------------------------------------------------------%
-\renewcommand\p@table{\tablename\space}                                         % ADD "Table " before table #s in LoT entries
-%\renewcommand\cfttabpresnum{\tablename\space}                                  % ALTERNATIVE: Add "Table " before table #s in LoT entries
-\newlength\len@cfttabpresnum                                                    % Width of content preceding 'snum', i.e. \cfttabpresnum
-\settowidth\len@cfttabpresnum{\cfttabfont\p@table}                              % SET to the width of \p@table
-\addtolength\len@cfttabpresnum{\cfttabnumwidth}                                 % ADD width of table number box, yielding total width = \p@table + \cfttabnumwidth
-%-------------------------------------------------------------------------------------------------------------------------------%
-% ToC list item indentations & sectioning number box widths
+% Indents for Y={figure,table} LoZ items WHEN(USING \p@Y & SPECIFIC 'caption' behavior)->add "Figure "/"Table " before \theY refnums
 %-------------------------------------------------------------------------------------------------------------------------------%
 %   # USAGE: \cftsetindents{<listX name>}{<indent>}{<snumwidth>}
-%   # indentations from chapter = 0in begin at 0.5in and increase by 0.25in for each subsequent level
+%   # figure/table number box width is adjusted by the width of \p@Y for Y={figure,table}
+%-------------------------------------------------------------------------------------------------------------------------------%
+\cftsetindents{figure}{0in}{\len@p@figure}                                      % Increase the width of the figure number line box to contain "Figure X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
+\cftsetindents{table}{0in}{\len@p@table}                                        % Increase the width of the table number line box to contain "Table X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
+%_______________________________________________________________________________________________________________________________%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Indents for Y={chapter,section,subsection,subsubsection} ToC items
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   # USAGE: \cftsetindents{<listX name>}{<indent>}{<snumwidth>}
+%   # indentations from chapter = 0in begin at \cftindent@chapLineTwo and increase by \cftindent@nextLevel for each subsequent level
 %   # chapter & <sub, subsub>sections: currently unnumbered -> their \addcontentsline statements do not include a \numberline -> numberline box width = 0.0in
-%   # figure/table number box width is increased by the width of \p@<figure,table> to the width of
 %-------------------------------------------------------------------------------------------------------------------------------%
 \cftsetindents{chapter}{0in}{0in}
-\cftsetindents{section}{\cftindent@between@chap@sec}{0in}
-\cftsetindents{subsection}{\cftindent@between@chap@sec+\cftindent@between@chaptitle@sec}{0in}
-\cftsetindents{subsubsection}{1.0in}{0in}
-\cftsetindents{figure}{0in}{\len@cftfigpresnum - 1em}                           % Increase the width of the figure number line box to contain "Figure X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
-\cftsetindents{table}{0in}{\len@cfttabpresnum - 1em}                            % Increase the width of the table number line box to contain "Table X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
-%-------------------------------------------------------------------------------------------------------------------------------%
-% ALTERNATIVE for figure/table when using \cft<fig,tab>presnum to add "Figure " and "Table " before number line box width
-%-------------------------------------------------------------------------------------------------------------------------------%
-%\cftsetindents{figure}{0in}{\len@cftfigpresnum+0.25in}                          % Simplest way to adjust for the addition of the word "Figure " to LoF entries
-%%\cftsetindents{figure}{-\len@cftfigpresnum+0.5in}{\len@cftfigpresnum+0.25in}   % More complicated but more logical and also works to adjust for the added word "Figure "
-%\cftsetindents{table}{0in}{\len@cfttabpresnum+0.25in}                           % Simplest way to adjust for the addition of the word "Table " to LoT entries
-%%\cftsetindents{table}{-\len@cfttabpresnum+0.5in}{\len@cfttabpresnum+0.25in}    % More complicated but more logical and also works to adjust for the added word "Table "
+\cftsetindents{section}{      \cftindent@chapLineTwo + \cftindent@nextLevel  }{0in}
+\cftsetindents{subsection}{   \cftindent@chapLineTwo + \cftindent@nextLevel*2}{0in}
+\cftsetindents{subsubsection}{\cftindent@chapLineTwo + \cftindent@nextLevel*3}{0in}
+\cftsetindents{paragraph}{    \cftindent@chapLineTwo + \cftindent@nextLevel*4}{0in}
 %_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
 %------------------------------------ Table of Contents (ToC) page settings & construction -------------------------------------%
@@ -1490,13 +1556,7 @@
 \setlength\cftbeforetoctitleskip{0.5in + \cftparskip@correction}                % Vertical skip before Table of Contents title (IMPLICITLY includes the 1" unnamed vertical offset from the top of each LaTeX page)
 \setlength\cftaftertoctitleskip{3\baselineskip}                                 % Vertical skip after Table of Contents title
 %-------------------------------------------------------------------------------------------------------------------------------%
-%   # Blake, 2023: INVESTIGATE manipulating these to suppress ToC item numbering & restore \numberline control sequences in
-%     \addcontentsline expansions so restoration of numbering in the future requires minimal changes/effort. This is only helpful
-%     if the ToC numbering can be suppressed WITHOUT also suppressing the numbering in the main body of the document. If not,
-%     it may be easier to simply \def\numberline{} where necessary to achieve the same outcome while leaving \numberline in
-%     the control sequences where it would need to be if it were ever restored in the formatting guidelines
-%-------------------------------------------------------------------------------------------------------------------------------%
-\setcounter{tocdepth}{4}                                                        % Includes ONLY ToC entry items up to <Level=4> (i.e. up to \subsection)
+\setcounter{tocdepth}{2}                                                        % Includes ONLY ToC entry items up to a 'depth' of 2 corresponding to <Level=4>:=\subsection since
 \setcounter{secnumdepth}{5}                                                     % Blake, 2023: Sets the <Level=5> at which sectioning command numbering is permitted, suppressing it for each Level > N=5
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Table of Contents (ToC) page construction (heading at 1.5")
@@ -1643,6 +1703,7 @@
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 %   + Blake, 2021: ADDED 'Attributions' page & attributions list construction & formatting controls
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Attributions page formatting controls
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -1660,23 +1721,6 @@
 }{%
     \end{singlespace}%
 }
-%_______________________________________________________________________________________________________________________________%
-%****************************************************** UNDER CONTRUCTION ******************************************************%
-%-------------------------------------------------------------------------------------------------------------------------------%
-% Define a single control sequence that automatically constructs & inserts a new 'attribution' \item w/ its corresponding
-% 'attribution' and 'authorList' environments
-%-------------------------------------------------------------------------------------------------------------------------------%
-%\newcommand\addAttribution[3][]{
-%    \begin{attributionList}
-%    \item\begin{attribution}
-%    %Schultze, B. E., M. Witt, Y. Censor, K. E. Schubert, and R. W. Schulte (2015). Performance of hull-detection algorithms for proton computed tomography reconstruction. In S. Reich and A. Zaslavski (Eds.), \textit{Infinite Products of Operators and Their Applications}, Volume 636 of \textit{Contemporary Mathematics}, pp. 211–224. American Mathematical Society.
-%     B. E. Schultze, M. Witt, Y. Censor, K. E. Schubert, and R. W. Schulte, “Performance of hull-detection algorithms for proton computed tomography reconstruction,” in \textit{Infinite Products of Operators and Their Applications}, ser. Contemporary Mathematics, S. Reich and A. Zaslavski, Eds., vol. 636. American Mathematical Society, 2015, pp. 211–224.
-%    \end{attribution}%
-%    \ifx#1\@empty\else\label{#1}\fi%
-%
-%}
-%_______________________________________________________________________________________________________________________________%
-%**************************************************** END UNDER CONTRUCTION ****************************************************%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Attributions page construction (heading at 1.5") [if applicable]
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -1684,21 +1728,21 @@
 {%
 	\if@makeAttributions
 		\thispagestyle{plain}
-        \phantomsection%                                                         % Anchor the bookmark to this position
-		\addcontentsline{toc}{part}{\normalsize\normalfont\attributionsToClabel}%
+        \phantomsection%                                                        % Anchor the bookmark to this position
+		\addcontentsline{toc}{part}{\listXFontStyle\attributionsToClabel}%
 		\begingroup
             %\vspace*{0.3in}                                                    % Blake, 2023: REPLACED with \attributions@topmargin
-            \centering%                                                          % Center the
-            \attributions@topmargin%                                             % Adjusts vspacing to generate the heading at the desired distance from the top of the page (set by \setXPageTopMargin)
-            \attributions@fontstyle%                                             % Sets fontstyle of header as specified by \setXPageFontStyle
-            \attributionsHeading\\[-0.5\baselineskip]%                           % Blake, 2023: Replaced the \vspace after this group w/ this newline + voffset
+            \centering%                                                         % Center the content (REQUIRES \\ OR \par before \endgroup to apply \centering paragraph formatting)
+            \attributions@topmargin%                                            % Adjusts vspacing to generate the heading at the desired distance from the top of the page (set by \setXPageTopMargin)
+            \attributions@fontstyle%                                            % Sets fontstyle of header as specified by \setXPageFontStyle
+            \attributionsHeading\\[-0.5\baselineskip]%                          % Blake, 2023: Replaced the \vspace after this group w/ this newline + voffset
         \endgroup
         %\vspace{-0.5\baselineskip}                                             % Blake, 2023: Moved/replaced with \\[-0.5\baselineskip
         \begingroup                                                             % Enforce local context for fontstyle
-            \attributions@parindent%                                             % Applies indentation specified by \setXPageParindent
+            \attributions@parindent%                                            % Applies indentation specified by \setXPageParindent
             \attributions@fontshape%                                            % Applies font shape specified by \setXPageFontShape
-            \attributions@stash@fontstyle%                                       % Sets fontstyle of 'stash' content as specified by \setXStashFontStyle
-            \attributionsStash%                                                  % Retrieve the text content that was temporarily stored in the stash
+            \attributions@stash@fontstyle%                                      % Sets fontstyle of 'stash' content as specified by \setXStashFontStyle
+            \attributionsStash%                                                 % Retrieve the text content that was temporarily stored in the stash
         \endgroup
 		\clearpage
 	\fi
@@ -1722,12 +1766,7 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 \setMainPageTopMargin{Appendix}{1.5in}
 %-------------------------------------------------------------------------------------------------------------------------------%
-%   -/+ Blake, 2023:
-%   - Removed this spacing between groups of Figure/Tables in the LoF/LoT, respectively, from different chapters
-%   - Removed this spacing between ToC chapters in favor of using \cftbeforechapskip and \cftafterchapskip.
-%   + Created this \addListXgroupsep to simplify reintroduction of such spacing to groups of any ListX items
-%-------------------------------------------------------------------------------------------------------------------------------%
-%
+% Encapsulation of the 2-line ToC item entries for \chapter[]{}
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand\cft@twoline@chapter@item[4]{%
     \ifnum \value{section} <\@ne
@@ -1748,9 +1787,9 @@
 		\typeout{Chapter \thechapter}%
 %        \cft@twoline@chapter@item{\rm\thechapter}%
 %                        {-\halfline@space-\mystery@vshift@discrepancy}%
-%                        {\hskip\cftindent@between@chaplines}{#1}
+%                        {\hskip\cftindent@chapLineTwo}{#1}
         \ifnum \value{section} <\@ne
-            \addcontentsline{toc}{chapter}{\protect\rm\thechapter}%             % Blake, 2023: 1st \chapter ToC line - adds appendix 'alph' numbering to "APPENDIX" (auto preprended as per redef of \addcontentsline in \appendix@redotocentry@pp)
+            \addcontentsline{toc}{chapter}{\protect\rm\appendixname\space\thechapter}%             % Blake, 2023: 1st \chapter ToC line - adds appendix 'alph' numbering to "APPENDIX" (auto preprended as per redef of \addcontentsline in \appendix@redotocentry@pp)
             \addtocontents{toc}{\protect\addvspace{%                            % Blake, 2023: Required manual ToC V-spacing for 2-line chapter ToC entry items
                     -\cftparskip@factor\doubleline@space%                       % where \doubleline@space is the INITIAL value 14.5pt before being stretched by \baselinestretch=1.655 to ~24pt (23.997pt)
                     %-\mystery@vshift@discrepancy                               % and IF the unknown 1.25pt voffset is being removed for <sub, subsub>sections, remove it here too so their ToC linespacings match
@@ -1758,7 +1797,7 @@
             }
         \fi
         \addcontentsline{toc}{chapter}{%                                        % Blake, 2023: Indent 2nd ToC line and print ONLY the APPENDIX chapter title (no numbering)
-                \protect\hskip\cftindent@between@chaplines\rm#1%
+                \protect\unskip\hskip\cftindent@chapLineTwo\rm#1%
         }%
 		%\addcontentsline{toc}{chapter}{\protect\numberline{\rm\thechapter}\rm#1}% Blake, 2023: REPLACED- removed chapter numbering from ToC entry
 	\else
@@ -1809,7 +1848,7 @@
             }
         \fi
         \addcontentsline{toc}{chapter}{%                                        % Blake, 2023: Indent 2nd ToC line and print ONLY the APPENDIX chapter title (no numbering)
-                \protect\hskip\cftindent@between@chaplines\rm#1%
+                \protect\hskip\cftindent@chapLineTwo\rm#1%
 		}
         %\addcontentsline{toc}{chapter}{\protect\numberline{\rm\thechapter}\rm#1}% Blake, 2023: REPLACED- removed chapter numbering from ToC entry
 	\else
@@ -1845,24 +1884,24 @@
 \newcommand{\section@singular@appendix}[2][]                                    % move down 1 level, use optional \section parameter to fix ToC num/title gap by -3ex
 {%  USAGE: \section@singular@appendix[<alt-heading=short ToC title>]{<heading>}
     \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
-    \@startsection{subsection}{1}{0pt}{1em}{0.001ex}                            % skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virually none
-	{\centering\normalfont\slshape\normalsize}[\hspace{-3ex}\ToCentry]{##2}
+    \@startsection{subsection}{3}{0pt}{1em}{0.001ex}                            % skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virually none
+	{\centering\normalfont\slshape\normalsize}[\ToCentry]{##2}
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\subsection@singular@appendix}[2][]                                 % move down 1 level
 {%  USAGE: \subsection@singular@appendix[<alt-heading=short ToC title>]{<heading>}
     \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
-	\@startsection{subsubsection}{2}{0pt}{0.001ex}{0.001ex}
-	{\vspace{1em}\normalfont\slshape\normalsize}[\hspace{-3ex}\ToCentry]{##2}
+	\@startsection{subsubsection}{4}{0pt}{0.001ex}{0.001ex}
+	{\vspace{1em}\normalfont\slshape\normalsize}[\ToCentry]{##2}
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\subsubsection@singular@appendix}[2][]                              % move down 1 level
 {%  USAGE: \subsubsection@singular@appendix[<alt-heading=short ToC title>]{<heading>}
     \vspace{1em}                                                                % Blake, 2023: [is this really needed?]
     \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
-	\@startsection{paragraph}{3}{0\p@}{0.001em}{-1em}%
+	\@startsection{paragraph}{5}{0\p@}{0.001em}{-1em}%
 	{\normalfont\slshape\normalsize}%
-    [\ToCentry\hspace{-3ex}]{##2\hspace{-3ex}}%
+    [\ToCentry]{##2}%
     {.}                                                                         % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -1880,23 +1919,23 @@
     \global\let\old@subsection\subsection                                       % save the definition of \subsection before redefining it
     \global\let\old@subsubsection\subsubsection                                 % save the definition of \subsubsection before redefining it
     \renewcommand{\section}[2][]{%                                              % move down 1 level, use optional \section parameter to fix ToC num/title gap by -3ex
-        \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
-        \@startsection{section}{1}{0pt}{1em}{0.001ex}                           % skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virually none
-    	{\centering\normalfont\slshape\normalsize}[\hspace{-3ex}\ToCentry]{##2}
+        \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}%
+        \@startsection{section}{3}{0pt}{1em}{0.001ex}%                           % skip: 2 space before, 1 space after. adjusted to 0.001 so that it's virually none
+    	{\centering\normalfont\slshape\normalsize}[\ToCentry]{##2}%
     }
-    \renewcommand{\subsection}[2][]{                                            % move down 1 level
-        \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
-    	\@startsection{subsection}{2}{0pt}{0.001ex}{0.001ex}
-    	{\vspace{1em}\normalfont\slshape\normalsize}[\hspace{-3ex}\ToCentry]{##2}
+    \renewcommand{\subsection}[2][]{%                                            % move down 1 level
+        \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}%
+    	\@startsection{subsection}{4}{0pt}{0.001ex}{0.001ex}%
+    	{\vspace{1em}\normalfont\slshape\normalsize}[\ToCentry]{##2}%
     }
     \renewcommand{\subsubsection}[2][]{%                                        % move down 1 level
-        \vspace{1em}                                                            % Blake, 2023: [is this really needed?]
-        \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}
-    	\@startsection{subsubsection}{3}%
+        \vspace{1em}%                                                            % Blake, 2023: [is this really needed?]
+        \ifstrempty{##1}{\def\ToCentry{##2}}{\def\ToCentry{##1}}%
+    	\@startsection{subsubsection}{5}%
             {0\p@}{0.001em}{-1em}{\normalfont\slshape\normalsize}%
-            [\ToCentry\hspace{-3ex}]%                                           % ToC list item entry
-            {##2\hspace{-3ex}}%                                                 % heading text/formatting
-            {.}                                                                 % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
+            [\ToCentry]%                                           % ToC list item entry
+            {##2}%                                                 % heading text/formatting
+            {.}%                                                                 % Blake, 2023: [is this really needed?] adds a period/fullstop/dot after the title
     }
 }
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -1906,19 +1945,18 @@
 %       # NOTE: this (& the original) command redefines \addcontentsline in the Appendix context to automatically include
 %         \appendixname\space, so subsequent \addcontentsline only dictate what is APPENDED to \appendixname\space.
 %-------------------------------------------------------------------------------------------------------------------------------%
-\global\let\old@appendixname\appendixname                                       % Save the \appendixname so it can be restored elsewhere
+%\global\let\old@appendixname\appendixname                                       % Save the \appendixname so it can be restored elsewhere
 \newcommand{\appendix@redotocentry@pp}[1]{%
-    \let\oldacl@pp=\addcontentsline
-    \def\addcontentsline##1##2##3%
-    {%
+    \let\oldacl@pp=\addcontentsline%
+    \def\addcontentsline##1##2##3{%
         \def\@pptempa{##1}\def\@pptempb{toc}%
         \ifx\@pptempa\@pptempb                                                  % if( ##1 = toc )
             \def\@pptempa{##2}\def\@pptempb{#1}%
             \ifx\@pptempa\@pptempb                                              % if( ##2 = #1 )
-                \oldacl@pp{##1}{##2}{\appendixname\space##3}%                   % Prepends \appendixname\space to ToC entry for all Appendix
-                \renewcommand\appendixname{}%                                   %*Remove APPENDIX/Appendix from ToC labels below Chapter level
+                \oldacl@pp{##1}{##2}{##3}%                   % Prepends \appendixname\space to ToC entry for all Appendix
+                %\renewcommand\appendixname{}%                                   %*Remove APPENDIX/Appendix from ToC labels below Chapter level
             \else
-                \global\let\appendixname\old@appendixname%                      %*Restore APPENDIX/Appendix as ToC labels for next Chapter level
+                %\global\let\appendixname\old@appendixname%                      %*Restore APPENDIX/Appendix as ToC labels for next Chapter level
                 \oldacl@pp{##1}{##2}{##3}%
             \fi
         \else
@@ -1964,7 +2002,7 @@
 %            \let\subsection\subsection@singular@appendix                        % redefine \subsection for use in singular Appendix
 %            \let\subsubsection\subsubsection@singular@appendix                  % redefine \subsubsection for use in singular Appendix
             \appendix@sectioning@renewals
-            \addcontentsline{toc}{part}{\normalsize\normalfont\appendixToClabel}% set ToC label to Appendix
+            \addcontentsline{toc}{part}{\listXFontStyle\appendixToClabel}% set ToC label to Appendix
 %**************************** MANUAL ToC V-SPACING HACK ************************************************************************************
             \addtocontents{toc}{\protect\vspace{-\baselineskip}}                % reduce to \section sized skip
         }{
@@ -1972,12 +2010,12 @@
             \glet\@chapter\@chapter@multiple@appendices
             \glet\thisAppendixHeading\appendicesHeading                         % set appendix page heading to APPENDICES/Appendices
             \addcontentsline{toc}{part}{%                                       % set ToC label to APPENDICES/Appendices
-                \normalsize\normalfont\appendicesToClabel%
+                \listXFontStyle\appendicesToClabel%
             }
         }
         \vspace*{\fill}
 		\begingroup%
-            \centering\normalfont\normalsize\thisAppendixHeading\\              % Place APPENDIX heading mid page using surrounding \fill vspacing
+            \centering\XheadingFontStyle\thisAppendixHeading\\              % Place APPENDIX heading mid page using surrounding \fill vspacing
         \endgroup
         \vspace*{\fill}
 		\clearpage
@@ -1986,11 +2024,11 @@
 %===============================================================================================================================%
 %----------------------------------------------------- CHAPTER BACKMATTER ------------------------------------------------------%
 %-------------------------------------------------------------------------------------------------------------------------------%
-%--------------------------- Subappendix/Subappendices: content page(s) contruction [if applicable] ----------------------------%
+%--------------------------- Subappendix/Subappendices: content page(s) contruction [if applicable] ----------------------------% 
 %===============================================================================================================================%
 %_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
-%---------------------- Subappendix settings & page(s) construction: environments, formatting, and pages -----------------------%
+%---------------------- Subappendix settings & page(s) construction: environments, formatting, and pages -----------------------% 
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Subappendix wrapper control sequence
@@ -2022,7 +2060,7 @@
             \def\@pptempa{##2}\def\@pptempb{#1}%
             \ifx\@pptempa\@pptempb                                              % if( ##2 = #1 )
                 \oldacl@pp{##1}{##2}{%
-                    \hskip\cftindent@between@subappendix@seclines##3%          % Adds manual \hskip to indent subappendix section ToC list item titles (w/ no preceding word or section number)
+                    \hskip\cftindent@nextLevel##3%                              % Adds manual \hskip to indent subappendix section ToC list item titles (w/ no preceding word or section number)
                 }%                                                              % Prepends NOTHING to ToC entry for all Appendix
             \else
                 \oldacl@pp{##1}{##2}{##3}%
@@ -2103,7 +2141,7 @@
 %===============================================================================================================================%
 %--------------------------------------------------------- BACKMATTER ----------------------------------------------------------%
 %-------------------------------------------------------------------------------------------------------------------------------%
-%-------------------------------------- Glossary/Index page(s) construction & formatting ---------------------------------------%
+%-------------------------------------- Glossary/Index page(s) construction & formatting ---------------------------------------% 
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Specialized list constructed for inclusion of lists in Backmatter page(s), e.g. glossary, list of symbols, or notation list
@@ -2113,19 +2151,19 @@
 %_______________________________________________________________________________________________________________________________%
 %*******************************************************************************************************************************%
 %===============================================================================================================================%
-%--------------------------------------------------------- BACKMATTER ----------------------------------------------------------%
+%--------------------------------------------------------- BACKMATTER ----------------------------------------------------------%  
 %-------------------------------------------------------------------------------------------------------------------------------%
-%------------------------- Bibliography page(s) heading, ToC label, & list item formatting a& controls -------------------------%
+%------------------------- Bibliography page(s) heading, ToC label, & list item formatting a& controls -------------------------% 
 %===============================================================================================================================%
 %*******************************************************************************************************************************%
 %_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
-%-------------------------------------- Bibliography page construction (heading at 1.5") ---------------------------------------%
+%-------------------------------------- Bibliography page construction (heading at 1.5") ---------------------------------------%   
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Redefinition of \thebibliography w/ appropriate header spacing, non-page-breaking citations, & text/list formatting
 %-------------------------------------------------------------------------------------------------------------------------------%
-%   # Blake, 2021: Prevent page breaks mid-citation. There are other ways to do this, e.g. modify .bst file, bib environment, etc.
+%   # Blake, 2021: Prevent page breaks mid-citation. There are other ways to do this, e.g. modify .bst file, bib environment, etc. 
 %     This is easiest & works for citations of any # of lines, which Grad School requested in format review.
 %-------------------------------------------------------------------------------------------------------------------------------%
 \def\@delayed@thebib@def{
@@ -2134,7 +2172,7 @@
 		\clearpage
 		\addcontentsline{toc}{chapter}{\bibname}
         \vspace*{0.41in}                                                        % Blake, 2023: Adjusted from 0.42in to 0.41in to better generate heading at 1.5"
-		\centering\normalfont\normalsize\bibname
+		\centering\XheadingFontStyle\bibname
 		\vspace{2ex}
         \intactCitations                                                        % prevents page breaks mid-citation
         %\singlespacing
@@ -2157,9 +2195,9 @@
 %_______________________________________________________________________________________________________________________________%
 %*******************************************************************************************************************************%
 %===============================================================================================================================%
-%-------------------------------------------------------- MAIN DOCUMENT --------------------------------------------------------%
+%-------------------------------------------------------- MAIN DOCUMENT --------------------------------------------------------% 
 %-------------------------------------------------------------------------------------------------------------------------------%
-%--------------------------------------- Final document body preparations & construction ---------------------------------------%
+%--------------------------------------- Final document body preparations & construction ---------------------------------------% 
 %===============================================================================================================================%
 %*******************************************************************************************************************************%
 %-------------------------------------------------------------------------------------------------------------------------------%
@@ -2191,48 +2229,8 @@
     \doublespacing
 	\pagenumbering{arabic}
 }
-%%*******************************************************************************************************************************%
-%%===============================================================================================================================%
-%%------------ Primary user input/interface macros appearing in Dissertation-Template.tex and Dissertation-Prologue -------------%
-%%===============================================================================================================================%
-%%*******************************************************************************************************************************%
-%
-%%===============================================================================================================================%
-%%--------------------------- Macros defined by the user in the preamble of Dissertation-Template.tex ---------------------------%
-%%===============================================================================================================================%
-%%-------------------------------------------------------------------------------------------------------------------------------%
-%% Redefine standard 'report' class macros
-%%-------------------------------------------------------------------------------------------------------------------------------%
-%\renewcommand*{\title}[1]{\gdef\thesisTitle{#1}}
-%\renewcommand*{\author}[1]{\gdef\thesisAuthorName{#1}}
-%\renewcommand*{\date}[1]{\gdef\thesisConfDate{#1}}
-%%\renewcommand{\abstract}[1]{\gdef\thesisAbstract{#1}}
-%%-------------------------------------------------------------------------------------------------------------------------------%
-%% Define unique 'Dissertation' class macros
-%%-------------------------------------------------------------------------------------------------------------------------------%
-%\newcommand*{\degree}[1]{\gdef\thesisDegree{#1}}
-%\newcommand*{\supervisor}[1]{\gdef\thesisMentor{#1}}
-%\newcommand*{\supervisorTitle}[1]{\gdef\thesisMentorTitle{#1}}
-%\newcommand*{\seeking}[1]{\gdef\thesisSeeking{#1}}
-%\newcommand*{\holding}[1]{\gdef\thesisHolding{#1}}
-%\newcommand*{\readerOne}[1]{\gdef\thesisReaderOne{#1}}
-%\newcommand*{\readerTwo}[1]{\gdef\thesisReaderTwo{#1}}
-%\newcommand*{\department}[1]{\gdef\thesisDepartment{#1}}
-%\newcommand*{\departmentChair}[1]{\gdef\thesisDepartmentChair{#1}}
-%\newcommand*{\graduateDean}[1]{\gdef\thesisDean{#1}}
-%%-------------------------------------------------------------------------------------------------------------------------------%
-%\newcommand*{\readerThree}[1]{\@makeReaderThreetrue\gdef\thesisReaderThree{#1}}
-%\newcommand*{\readerFour}[1]{\@makeReaderFourtrue\gdef\thesisReaderFour{#1}}
-%\newcommand*{\readerFive}[1]{\@makeReaderFivetrue\gdef\thesisReaderFive{#1}}
-%%===============================================================================================================================%
-%%---------------------------- Prologue page macros defined by the user in Dissertation-Prologue.tex ----------------------------%
-%%===============================================================================================================================%
-%\renewcommand{\abstract}[1]{\@makeAbstractPagetrue\gdef\abstractStash{#1}}
-%\newcommand{\acknowledgements}[1]{\@makeAcknowledgementstrue\gdef\acknowledgementsStash{#1}}
-%\newcommand{\dedication}[1]{\@makeDedicationtrue\gdef\dedicationStash{#1}}
-%\newcommand{\attributions}[1]{\@makeAttributionstrue\gdef\attributionsStash{#1}}% Blake added, 2021
 %===============================================================================================================================%
-% Footnote construction & control
+%----------------------------------------------- Footnote construction & control -----------------------------------------------%
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Rysavy: footnotes must have the same indent as paragraph
@@ -2243,21 +2241,8 @@
 \DeclareNewFootnote{A}
 \renewcommand{\footnote}[1]{\footnoteA{#1}}                                     % the footnotes need to start with 1 at the beginning of each chapter
 %_______________________________________________________________________________________________________________________________%
-%****************************************************** UNDER CONTRUCTION ******************************************************%
-%-------------------------------------------------------------------------------------------------------------------------------%
-%\def\footnoterule{\vspace*{0.1em}\kern-3\p@
-%  \hrule \@width 2in \kern 2.6\p@} % the \hrule is .4pt high
-%-------------------------------------------------------------------------------------------------------------------------------%
-%\renewcommand{\footnoterule}{%
-%  \kern -3pt
-%  \hrule width \textwidth height 1pt
-%  \kern 2pt
-%}
-%_______________________________________________________________________________________________________________________________%
-%**************************************************** END UNDER CONTRUCTION ****************************************************%
-%_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
-% Additional packages that are useful and commonly used in Package/Class writing
+%----------------------- Additional packages that are useful and commonly used in Package/Class writing ------------------------%
 %===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Blake, 2021: Added packages that are commonly useful for writing Packages (.sty) & Classes (.cls).
@@ -2333,13 +2318,13 @@
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 \newcommand{\abs}[1]{\left\lvert#1\right\rvert}
 \newcommand{\vect}[1]{\vbox{\m@th \ialign {##\crcr\vectfill\crcr\noalign{\kern-2.95\p@ \nointerlineskip}$#1$\crcr}}\kern-2.1pt}
-\newcommand{\setdef}[2]{\left\{\,#1\setor #2\,\right\}}                 % Defines set { #1 | #2 }
-\newcommand{\setpad}{\;}                                                % Defines set definition open/close/mid padding space
-\newcommand{\seqopen}{\left\lbrace}                                     % Defines sequence definition open (left) bracing
-\newcommand{\seqclose}{\right\rbrace}                                   % Defines sequence definition close (right) bracing
-\newcommand{\setopen}{\left\lbrace\setpad}                              % Defines set definition open (left) bracing + padding
-\newcommand{\setclose}{\right\rbrace\setpad}                            % Defines set definition close (right) bracing + padding
-\newcommand{\setwhere}{\setpad\middle\vert\setpad}                      % Defines set definition where/such that vert separator + padding
+\newcommand{\setdef}[2]{\left\{\,#1\setor #2\,\right\}}                         % Defines set { #1 | #2 }
+\newcommand{\setpad}{\;}                                                        % Defines set definition open/close/mid padding space
+\newcommand{\seqopen}{\left\lbrace}                                             % Defines sequence definition open (left) bracing
+\newcommand{\seqclose}{\right\rbrace}                                           % Defines sequence definition close (right) bracing
+\newcommand{\setopen}{\left\lbrace\setpad}                                      % Defines set definition open (left) bracing + padding
+\newcommand{\setclose}{\right\rbrace\setpad}                                    % Defines set definition close (right) bracing + padding
+\newcommand{\setwhere}{\setpad\middle\vert\setpad}                              % Defines set definition where/such that vert separator + padding
 %-------------------------------------------------------------------------------------------------------------------------------%
 \newcommand{\alignedbox}[3][white]{
     % #1 = color (optional, defaults to yellow)
@@ -2359,7 +2344,6 @@
 \DeclareMathOperator*{\diag}{diag}                                              % diagonal matrix label 'diag'
 \DeclareMathOperator*{\rand}{rand}                                              % diagonal matrix label 'diag'
 %-------------------------------------------------------------------------------------------------------------------------------%
-\newcommand\Dotfill{\leavevmode\cleaders\hb@xt@ .33em{\hss .\hss }\hfill\kern\z@}
 %\newcommand\attrref{}
 \newcommand{\fsection}[3]{\section{#1}\label{#2}\input{#3}}
 \newcommand{\fsubsection}[3]{\subsection{#1}\label{#2}\input{#3}}
@@ -2397,16 +2381,211 @@
                 \xp{#3}%
         }%
 }
-%-------------------------------------------------------------------------------------------------------------------------------%
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
 %*******************************************************************************************************************************%
 %******************************************************* END: thesis.cls *******************************************************%
 %*******************************************************************************************************************************%
+%===============================================================================================================================%
+\endinput                                                                       % ENSURES following code is not included in .cls expansion
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
+%********************************************************* DEPRECATED **********************************************************%
 %-------------------------------------------------------------------------------------------------------------------------------%
+%===============================================================================================================================%
 % Handy table spacing macros: \abovespace, \belowspace
-%% Alvin's Note: Obsolete. Do not use
-%\def\abovestrut#1{}
-%\def\belowstrut#1{}
-%\def\abovespace{}
-%\def\aroundspace{}
-%\def\belowspace{}
+% Alvin's Note: Obsolete. Do not use
+\def\abovestrut#1{}
+\def\belowstrut#1{}
+\def\abovespace{}
+\def\aroundspace{}
+\def\belowspace{}
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+%***************************************************** UNDER CONSTRUCTION ******************************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
+%===============================================================================================================================%
+%_______________________________________________________________________________________________________________________________%
+%************************************************** BEGIN UNDER CONSTRUCTION ***************************************************%
+% Blake, 2021: In progress with title page.
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newcommand*{\thesisSignature}[2]
+{%  USAGE: \thesisSignature{<text>}{<vrule width>}
+    normalsize
+   %\vspace{0.05in}
+   %\\
+   \vrule width #2 height 0.1mm\\[0.1mm-2ex]
+   %[-0.5\baselineskip]
+   %\vspace{0.5em}
+   #1
+}
+%_______________________________________________________________________________________________________________________________%
+%*************************************************** END UNDER CONSTRUCTION ****************************************************%
+%_______________________________________________________________________________________________________________________________%
+%************************************************** BEGIN UNDER CONSTRUCTION ***************************************************%
+% Blake 2021, in progress: correcting margins and positioning/spacing of lines.
+% # Attempting to match Grad School provided "4 Line Signature Page", though it extends into the 1" top and bottom margins and
+%   has inconsistent spacing.
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newcommand*{\thesisTitlePage}
+{
+    \if@insertSignaturePage%
+        %\include{\signaturePageAddr}
+        %\include{./Forms/SignaturesPage.pdf}
+        \includepdf{\signaturePageAddr}
+    \else
+    	\thispagestyle{thesisTitlePageStyle}
+    	\doublespacing	
+        {
+            \vspace*{0.5ex -\baselineskip}
+            \centering
+        %\begin{center}
+    	%\vspace*{0.1in}
+    		\thesisTitle \\[0.5\baselineskip-1.5ex]
+    		by \\[0.5\baselineskip-1.5ex-0.3mm]
+    		%by \\[0.5\baselineskip-0.5em - 0.2mm]
+    		\thesisAuthorName, \thesisHolding \\[-1.5ex - 0.2mm + 0.5\baselineskip]
+    		A Dissertation \\[-1.em + 0.3mm + 0.5\baselineskip]
+    		Approved by the \thesisDepartment\\[-0.5em +0.2mm + 0.5\baselineskip]
+    		\thesisSignature{\thesisDepartmentChair, Chairperson}{4.0in}\\[0.5\baselineskip - 0.2mm]
+    	%\vspace{0.1in}
+        	\singlespacing
+            	Submitted to the Graduate Faculty of\\
+        	Baylor University in Partial Fulfillment of the \\
+        	Requirements for the Degree \\
+        	of \\[-0.5ex + 0.2mm + 0.5\baselineskip]
+        	\thesisDegree\\[\baselineskip]
+        }
+    	\vspace{2\baselineskip}
+    	%\vfill
+    	\doublespacing
+    	%\hspace{0.25in}
+    	%\setlength\leftskip{0.5in}
+        {   %
+            	\centering
+                %\addtolength{\leftskip}{-2.5in}
+                Approved by the Dissertation Committee\\
+         		\thesisSignature{\thesisMentor, Chairperson}{80mm}\\
+         		\thesisSignature{\thesisReaderOne}{80mm}\\
+         		\thesisSignature{\thesisReaderTwo}{80mm}\\
+    		\if@makeReaderThree \thesisSignature{\thesisReaderThree}{80mm}\\ \fi
+    		\if@makeReaderFour \thesisSignature{\thesisReaderFour}{80mm}\\ \fi
+    		\if@makeReaderFive \thesisSignature{\thesisReaderFive}{80mm}\\ \fi
+    		%\\
+    	}
+    	
+    	\vspace{0.25in}
+    	\vfill	
+    	%\addtolength{\leftskip}{-1.0in}
+        %\setlength\leftskip{-1.25in}
+        {
+    		%\centering
+    		\begin{flushleft}
+                \centering
+                Accepted by the Graduate School \\
+        		\vspace{-0.075in}
+        		\thesisConfDate
+        		\thesisSignature{\thesisDean, Dean}{80mm} \\
+            \end{flushleft}
+    	}	
+    	%\end{center}
+    \fi
+    \clearpage
+}
+%_______________________________________________________________________________________________________________________________%
+%*************************************************** END UNDER CONSTRUCTION ****************************************************%
+%_______________________________________________________________________________________________________________________________%
+%************************************************** BEGIN UNDER CONSTRUCTION ***************************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Define a single control sequence that automatically constructs & inserts a new 'attribution' \item w/ its corresponding
+% 'attribution' and 'authorList' environments
+%-------------------------------------------------------------------------------------------------------------------------------%
+\newcommand\addAttribution[3][]{
+    \begin{attributionList}
+    \item\begin{attribution}
+    %Schultze, B. E., M. Witt, Y. Censor, K. E. Schubert, and R. W. Schulte (2015). Performance of hull-detection algorithms for proton computed tomography reconstruction. In S. Reich and A. Zaslavski (Eds.), \textit{Infinite Products of Operators and Their Applications}, Volume 636 of \textit{Contemporary Mathematics}, pp. 211–224. American Mathematical Society.
+     B. E. Schultze, M. Witt, Y. Censor, K. E. Schubert, and R. W. Schulte, “Performance of hull-detection algorithms for proton computed tomography reconstruction,” in \textit{Infinite Products of Operators and Their Applications}, ser. Contemporary Mathematics, S. Reich and A. Zaslavski, Eds., vol. 636. American Mathematical Society, 2015, pp. 211–224.
+    \end{attribution}%
+    \ifx#1\@empty\else\label{#1}\fi%
+
+}
+%_______________________________________________________________________________________________________________________________%
+%*************************************************** END UNDER CONSTRUCTION ****************************************************%
+%_______________________________________________________________________________________________________________________________%
+%************************************************** BEGIN UNDER CONSTRUCTION ***************************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
+\def\footnoterule{\vspace*{0.1em}\kern-3\p@
+  \hrule \@width 2in \kern 2.6\p@} % the \hrule is .4pt high
+%-------------------------------------------------------------------------------------------------------------------------------%
+\renewcommand{\footnoterule}{%
+  \kern -3pt
+  \hrule width \textwidth height 1pt
+  \kern 2pt
+}
+%_______________________________________________________________________________________________________________________________%
+%*************************************************** END UNDER CONSTRUCTION ****************************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+%********************************************** ALTERNATIVE IMPLEMENTATIONS & DEV **********************************************%
+%-------------------------------------------------------------------------------------------------------------------------------%
+%===============================================================================================================================%
+% ALTERNATIVE IMPLEMENTATION: Add prefix label before LoZ item refnums directly through 'tocloft' package instead of current
+%       implementation extending 'caption' package functionality
+%_______________________________________________________________________________________________________________________________%
+%********************************************** ALTERNATIVE:={status=INCOMPLETE) ***********************************************%
+%_______________________________________________________________________________________________________________________________%
+%*************************************************** status<INCOMPLETE:list> ***************************************************%
+%*INCOMPLETE:list.MISSING_FEATURES:
+%   (1) LoZ numbering/title separation options={Aligned,Constsep} & corresponding \set__Aligned & \set__Constsep controls
+%   (2) LoZ item spacing adjustments when N>=10 -> N=[nn] in refnum C.N -> C.nn is wider by 1 digit n
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
+%---- Redefine format of \caption[]{} items written to \listofYs ONLY for specific float environments Y={figure, table,...} ----%
+%===============================================================================================================================%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Naming: (X:Y:Z)={fig:figure:F,tab:table:T)<=>(\_X_:\listofYs:LoZ)={\_fig_:\listoffigures:LoF,\_tab_:\listoftables:LoT,...}
+%   # NOTE: \_X_ is often \cft_X_ either from 'tocloft' directly OR defined/derived in <this>.cls for use w/ 'tocloft' behaviors
+%-------------------------------------------------------------------------------------------------------------------------------%
+% LoZ item title = <title> IF USING \caption{<title>} OR title = <short title> IF USING \caption[<short title>]{<title>}
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   # Blake, 2023: This is an ALTERNATIVE approach for adding "Figure "/"Table " before LoZ item refnums \theY in the \listofYs
+%     for Y={figure, table} exclusively using 'tocloft' package functionalities. This could be extended to other floats,
+%     partiularly e.g. Y={subfigure,subtable} w/ existing 'tocloft' functionality; other float environments would be less trivial.
+%       + ADDED "Figure " & "Table " before Y={figure,table} refnums \theY in the LoF/LoT by redefining \cftXpresnum {}->{\Yname\space}
+%       + DEFINED new length \len@cftXpresnum & set it to width of the content \cftXfont\cftXpresnum that was added before 'snum'
+%       + ADDED original width of 'snum' box \cftXnumwidth to \len@cftXpresnum, yielding total width of \cftXpresnum\numberline{\theX}
+%       + SET \cftsetindents{Y}{0in}{\len@cftXpresnum - 1em}, where [optional] 1em reduces distance between LoZ item 'snum' & title
+%       + SET LoZ item indents & numberline widths using \cftsetindents{Y}{<indent>=0.0in}{<width>=\len@cftXpresnum - 1em}
+%         where [optional] 1em reduces distance between LoZ item 'snum' & title to ~1 \space
+%===============================================================================================================================%
+%_______________________________________________________________________________________________________________________________%
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Redefine \cftfigpresnum to desired prefix label before LoF item refnums C.N & define/init LoF item spacing/indentation parameters
+%-------------------------------------------------------------------------------------------------------------------------------%
+\renewcommand\cftfigpresnum{\figurename\space}                                 % ADD "Figure " before figure #s in LoF entries
+\newlength\len@cftfigpresnum                                                    % Width of content preceding 'snum', i.e. \cftfigpresnum
+\settowidth\len@cftfigpresnum{\cftfigfont\cftfigpresnum}                        % SET to the width of \cftfigpresnum
+\addtolength\len@cftfigpresnum{\cftfignumwidth}                                 % ADD width of figure number box, yielding total width = \p@figure + \cftfignumwidth
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Redefine \cfttabpresnum to desired prefix label before LoT item refnums C.N & define/init LoT item spacing/indentation parameters
+%-------------------------------------------------------------------------------------------------------------------------------%
+\renewcommand\cfttabpresnum{\tablename\space}                                  % ADD "Table " before table #s in LoT entries
+\newlength\len@cfttabpresnum                                                    % Width of content preceding 'snum', i.e. \cfttabpresnum
+\settowidth\len@cfttabpresnum{\cfttabfont\cfttabpresnum}                        % SET to the width of \cfttabpresnum
+\addtolength\len@cfttabpresnum{\cfttabnumwidth}                                 % ADD width of table number box, yielding total width = \p@table + \cfttabnumwidth
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Set Indents for figure/table when using \cft<fig,tab>presnum to add "Figure " and "Table " before number line box width
+%-------------------------------------------------------------------------------------------------------------------------------%
+\cftsetindents{figure}{0in}{\len@cftfigpresnum - 2em}                           % Increase the width of the figure number line box to contain "Figure X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
+\cftsetindents{table}{0in}{\len@cfttabpresnum - 2em}                            % Increase the width of the table number line box to contain "Table X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
+%-------------------------------------------------------------------------------------------------------------------------------%
+%\cftsetindents{figure}{0in}{\len@cftfigpresnum+0.25in}                          % Simplest way to adjust for the addition of the word "Figure " to LoF entries
+%%\cftsetindents{figure}{-\len@cftfigpresnum+0.5in}{\len@cftfigpresnum+0.25in}   % More complicated but more logical and also works to adjust for the added word "Figure "
+%\cftsetindents{table}{0in}{\len@cfttabpresnum+0.25in}                           % Simplest way to adjust for the addition of the word "Table " to LoT entries
+%%\cftsetindents{table}{-\len@cfttabpresnum+0.5in}{\len@cfttabpresnum+0.25in}    % More complicated but more logical and also works to adjust for the added word "Table "
+%_______________________________________________________________________________________________________________________________%
+%****************************************************** END: ALTERNATIVE *******************************************************%
