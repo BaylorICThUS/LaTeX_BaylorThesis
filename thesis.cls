@@ -1512,18 +1512,25 @@
 \setlength\cftbeforesubsecskip{\cftparskip@factor\baselineskip}                 % beforeskip for subsection entry items in the ToC
 \setlength\cftbeforesubsubsecskip{\cftparskip@factor\baselineskip}              % beforeskip for subsubsection entry items in the ToC
 %-------------------------------------------------------------------------------------------------------------------------------%
+% ADD hanging indent to lines 2,3,4,... of ANY ToC/LoF/LoT item whose title spills over onto more than 1 ToC/LoZ item line.
+%-------------------------------------------------------------------------------------------------------------------------------%
+\def\cfthang@indent{0.35in}                                                     % DEFINE the DEFAULT vspacing to be added between ToC/LoZ items from different "groups", e.g. between groups of ToC items from different chapters
+\newcommand\setcftHangIndents[1]{\def\cfthang@indent{#1}}                       % DEFINE front-end control for setting VALUE(\cfthang@indent) 
+%-------------------------------------------------------------------------------------------------------------------------------%
+\renewcommand\cftpartafterpnum{\hangindent\cfthang@indent}
+\renewcommand\cftchapafterpnum{\hangindent\cfthang@indent}
+\renewcommand\cftsecafterpnum{\hangindent\cfthang@indent}
+\renewcommand\cftsubsecafterpnum{\hangindent\cfthang@indent}
+\renewcommand\cftsubsubsecafterpnum{\hangindent\cfthang@indent}
+\renewcommand\cftparaafterpnum{\hangindent\cfthang@indent}
+\renewcommand\cftsubparaafterpnum{\hangindent\cfthang@indent}
+\renewcommand\cftfigafterpnum{\hangindent\cfthang@indent}
+\renewcommand\cfttabafterpnum{\hangindent\cfthang@indent}
+%-------------------------------------------------------------------------------------------------------------------------------%
 % Indentation & vertical spacing controls for ToC list items of <Level=L>
 %-------------------------------------------------------------------------------------------------------------------------------%
 \def\cftindent@chapLineTwo{0.35in}                                              % DEFINE indentation between 1st and 2nd lines of \chapter ToC 2-line list items
 \def\cftindent@nextLevel{0.175in}                                               % DEFINE common relative indentation for all ToC list levels after <Level 2> chapter title line
-%-------------------------------------------------------------------------------------------------------------------------------%
-% Indents for Y={figure,table} LoZ items WHEN(USING \p@Y & SPECIFIC 'caption' behavior)->add "Figure "/"Table " before \theY refnums
-%-------------------------------------------------------------------------------------------------------------------------------%
-%   # USAGE: \cftsetindents{<listX name>}{<indent>}{<snumwidth>}
-%   # figure/table number box width is adjusted by the width of \p@Y for Y={figure,table}
-%-------------------------------------------------------------------------------------------------------------------------------%
-\cftsetindents{figure}{0in}{\len@p@figure}                                      % Increase the width of the figure number line box to contain "Figure X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
-\cftsetindents{table}{0in}{\len@p@table}                                        % Increase the width of the table number line box to contain "Table X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
 %_______________________________________________________________________________________________________________________________%
 %-------------------------------------------------------------------------------------------------------------------------------%
 % Indents for Y={chapter,section,subsection,subsubsection} ToC items
@@ -1537,6 +1544,14 @@
 \cftsetindents{subsection}{   \cftindent@chapLineTwo + \cftindent@nextLevel*2}{0in}
 \cftsetindents{subsubsection}{\cftindent@chapLineTwo + \cftindent@nextLevel*3}{0in}
 \cftsetindents{paragraph}{    \cftindent@chapLineTwo + \cftindent@nextLevel*4}{0in}
+%-------------------------------------------------------------------------------------------------------------------------------%
+% Indents for Y={figure,table} LoZ items WHEN(USING \p@Y & SPECIFIC 'caption' behavior)->add "Figure "/"Table " before \theY refnums
+%-------------------------------------------------------------------------------------------------------------------------------%
+%   # USAGE: \cftsetindents{<listX name>}{<indent>}{<snumwidth>}
+%   # figure/table number box width is adjusted by the width of \p@Y for Y={figure,table}
+%-------------------------------------------------------------------------------------------------------------------------------%
+\cftsetindents{figure}{0in}{\len@p@figure}                                      % Increase the width of the figure number line box to contain "Figure X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
+\cftsetindents{table}{0in}{\len@p@table}                                        % Increase the width of the table number line box to contain "Table X.XX", but reduce the gap before subsequent title by 1em to ~1 space DEFAULT:{1.5em}{2.3em}
 %_______________________________________________________________________________________________________________________________%
 %===============================================================================================================================%
 %------------------------------------ Table of Contents (ToC) page settings & construction -------------------------------------%
@@ -1563,7 +1578,7 @@
 %-------------------------------------------------------------------------------------------------------------------------------%
 %\newcommand{\thesisToCpage}{\begingroup\tableofcontents\endgroup\clearpage}
 \newcommand{\thesisToCpage}{%
-    \begingroup\tableofcontents\endgroup
+    \begingroup\singlespacing\tableofcontents\endgroup
 	\clearpage
 }
 %_______________________________________________________________________________________________________________________________%

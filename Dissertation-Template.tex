@@ -4,15 +4,35 @@
 %-------------------------------------------------- Dissertation-Template.tex --------------------------------------------------%
 %===============================================================================================================================%
 %*******************************************************************************************************************************%
+% File: Dissertation-Template.tex
+% Description: This is the main.tex document which sources thesis.cls as \documentclass{thesis}. Dependencies are established
+%       using \include{X} statememts. The primary user inputs for generating thesis forms are supplied here directly. 
+% Usage: Fill 'Primary User Inputs' to match your Dissertation properties then structure & fill MAINMATTER & BACKMATTER 
+%       as needed. NOTE: 'subappendices' and wrapper \subappendix behaviors, yielding Chapter level APPENDICES are highly
+%       discouraged by Grad Department. There are cases where MAINMATTER APPENDICES are preferable to BACKMATTER APPENDICES,
+%       but users will have to make their case to the Grad Department on why these should be permitted for a specific scenario
+% Dependencies: {thesis.cls, Dissertation-config, Dissertation-Prologue, Dissertation-Preamble}
+% Components: {}
 %_______________________________________________________________________________________________________________________________%
+% Last Updated in December, 2023
+%_______________________________________________________________________________________________________________________________%
+%_______________________________________________________________________________________________________________________________%
+%==============================================w=================================================================================%
+%------------------------------------------- Class/Package Dependencies & Inclusions -------------------------------------------%
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 \documentclass{thesis}
 %-------------------------------------------------------------------------------------------------------------------------------%
 \usepackage{epsfig}                                                     % Permit the use of postscript figures within the document.
 %\patchcmd{\Ginclude@eps}{"#1"}{#1}{}{}
+\include{Dissertation-config}                                           % User control sequence definitions, register variable declarations/inits, 
 \include{Dissertation-Prologue}                                         % Abstract, Acknowledgements, Attributions, Dedication definitions
 %\include{Dissertation-Preamble}                                        % Include your own packages and TeX definitions from Dissertation-Preamble.tex
 \graphicspath{{./images/}}
+%_______________________________________________________________________________________________________________________________%
+%===============================================================================================================================%
+%----------------------------------------------------- Primary User Inputs -----------------------------------------------------%
+%===============================================================================================================================%
 %-------------------------------------------------------------------------------------------------------------------------------%
 \title{Title of Your Dissertation}                                      %\thesisTitle
 \author{John G. Student}                                                %\thesisAuthor
